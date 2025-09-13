@@ -3,6 +3,8 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
+import { CustomWalletModal } from "@/components/custom-wallet-modal";
+import { CustomChainModal } from "@/components/custom-chain-modal";
 
 interface WalletConnectionProps {
   className?: string;
@@ -60,50 +62,54 @@ export function WalletConnection({ className = "", showBalance = true }: WalletC
 
                   if (chain.unsupported) {
                     return (
-                      <Button onClick={openChainModal} variant="destructive">
-                        Wrong network
-                      </Button>
+                      <CustomChainModal>
+                        <Button variant="destructive">
+                          Wrong network
+                        </Button>
+                      </CustomChainModal>
                     );
                   }
 
                   return (
                     <div className="flex items-center gap-2">
-                      <Button
-                        onClick={openChainModal}
-                        variant="outline"
-                        className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                      >
-                        {chain.hasIcon && (
-                          <div
-                            style={{
-                              background: chain.iconBackground,
-                              width: 12,
-                              height: 12,
-                              borderRadius: 999,
-                              overflow: "hidden",
-                              marginRight: 4,
-                            }}
-                          >
-                            {chain.iconUrl && (
-                              <img
-                                alt={chain.name ?? "Chain icon"}
-                                src={chain.iconUrl}
-                                style={{ width: 12, height: 12 }}
-                              />
-                            )}
-                          </div>
-                        )}
-                        {chain.name}
-                      </Button>
+                      <CustomChainModal>
+                        <Button
+                          variant="outline"
+                          className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                        >
+                          {chain.hasIcon && (
+                            <div
+                              style={{
+                                background: chain.iconBackground,
+                                width: 12,
+                                height: 12,
+                                borderRadius: 999,
+                                overflow: "hidden",
+                                marginRight: 4,
+                              }}
+                            >
+                              {chain.iconUrl && (
+                                <img
+                                  alt={chain.name ?? "Chain icon"}
+                                  src={chain.iconUrl}
+                                  style={{ width: 12, height: 12 }}
+                                />
+                              )}
+                            </div>
+                          )}
+                          {chain.name}
+                        </Button>
+                      </CustomChainModal>
 
-                      <Button
-                        onClick={openAccountModal}
-                        variant="outline"
-                        className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                      >
-                        {account.displayName}
-                        {account.displayBalance ? ` (${account.displayBalance})` : ""}
-                      </Button>
+                      <CustomWalletModal>
+                        <Button
+                          variant="outline"
+                          className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                        >
+                          {account.displayName}
+                          {account.displayBalance ? ` (${account.displayBalance})` : ""}
+                        </Button>
+                      </CustomWalletModal>
                     </div>
                   );
                 })()}
@@ -159,50 +165,54 @@ export function WalletConnection({ className = "", showBalance = true }: WalletC
 
                 if (chain.unsupported) {
                   return (
-                    <Button onClick={openChainModal} variant="destructive">
-                      Wrong network
-                    </Button>
+                    <CustomChainModal>
+                      <Button variant="destructive">
+                        Wrong network
+                      </Button>
+                    </CustomChainModal>
                   );
                 }
 
                 return (
                   <div className="flex items-center gap-2">
-                    <Button
-                      onClick={openChainModal}
-                      variant="outline"
-                      className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                    >
-                      {chain.hasIcon && (
-                        <div
-                          style={{
-                            background: chain.iconBackground,
-                            width: 12,
-                            height: 12,
-                            borderRadius: 999,
-                            overflow: "hidden",
-                            marginRight: 4,
-                          }}
-                        >
-                          {chain.iconUrl && (
-                            <img
-                              alt={chain.name ?? "Chain icon"}
-                              src={chain.iconUrl}
-                              style={{ width: 12, height: 12 }}
-                            />
-                          )}
-                        </div>
-                      )}
-                      {chain.name}
-                    </Button>
+                    <CustomChainModal>
+                      <Button
+                        variant="outline"
+                        className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                      >
+                        {chain.hasIcon && (
+                          <div
+                            style={{
+                              background: chain.iconBackground,
+                              width: 12,
+                              height: 12,
+                              borderRadius: 999,
+                              overflow: "hidden",
+                              marginRight: 4,
+                            }}
+                          >
+                            {chain.iconUrl && (
+                              <img
+                                alt={chain.name ?? "Chain icon"}
+                                src={chain.iconUrl}
+                                style={{ width: 12, height: 12 }}
+                              />
+                            )}
+                          </div>
+                        )}
+                        {chain.name}
+                      </Button>
+                    </CustomChainModal>
 
-                    <Button
-                      onClick={openAccountModal}
-                      variant="outline"
-                      className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                    >
-                      {account.displayName}
-                      {account.displayBalance ? ` (${account.displayBalance})` : ""}
-                    </Button>
+                    <CustomWalletModal>
+                      <Button
+                        variant="outline"
+                        className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                      >
+                        {account.displayName}
+                        {account.displayBalance ? ` (${account.displayBalance})` : ""}
+                      </Button>
+                    </CustomWalletModal>
                   </div>
                 );
               })()}

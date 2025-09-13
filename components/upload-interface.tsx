@@ -174,7 +174,7 @@ export function UploadInterface() {
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-black text-white">
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
           <div className="max-w-2xl mx-auto text-center space-y-8">
             <div>
               <h1 className="text-4xl font-bold mb-4">Upload to Glacier</h1>
@@ -183,7 +183,7 @@ export function UploadInterface() {
               </p>
             </div>
 
-            <GlowCard glowColor="ice" customSize={true} className="p-8 border-2 border-blue-500/20">
+            <GlowCard glowColor="ice" customSize={true} className="p-8 md:p-8 sm:p-4 border-2 border-blue-500/20">
               <div className="text-center space-y-6">
                 <div>
                   <h3 className="text-xl font-bold mb-2">Wallet Connection Required</h3>
@@ -231,33 +231,35 @@ export function UploadInterface() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 max-w-6xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <Link href="/" className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+          <div className="flex-1">
+            <Link href="/" className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 mb-2 sm:mb-4">
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Home</span>
+              <span className="text-sm sm:text-base">Back to Home</span>
             </Link>
-            <h1 className="text-3xl font-bold">Upload to Glacier</h1>
-            <p className="text-gray-400">Securely store your files across the decentralized network</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">Upload to Glacier</h1>
+            <p className="text-gray-400 text-sm sm:text-base">Securely store your files across the decentralized network</p>
           </div>
 
-          <div className="flex items-center gap-4">
-            <WalletConnection />
-            <Link href="/dashboard">
-              <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+            <div className="order-2 sm:order-1">
+              <WalletConnection />
+            </div>
+            <Link href="/dashboard" className="order-1 sm:order-2">
+              <Button variant="outline" className="w-full sm:w-auto border-gray-600 text-gray-300 hover:bg-gray-800">
                 View Dashboard
               </Button>
             </Link>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
           {/* Upload Form */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="xl:col-span-2 space-y-4 sm:space-y-6 order-1">
             {/* File Selection */}
-            <GlowCard glowColor="glacier" customSize={true} className="p-6">
+            <GlowCard glowColor="glacier" customSize={true} className="p-6 sm:p-4">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold flex items-center gap-2">
@@ -335,7 +337,7 @@ export function UploadInterface() {
             </GlowCard>
 
             {/* Provider Selection */}
-            <GlowCard glowColor="deep" customSize={true} className="p-6">
+            <GlowCard glowColor="deep" customSize={true} className="p-6 sm:p-4">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold">Select Storage Providers</h3>
@@ -376,7 +378,7 @@ export function UploadInterface() {
 
             {/* Upload Progress */}
             {uploading && (
-              <GlowCard glowColor="arctic" customSize={true} className="p-6">
+              <GlowCard glowColor="arctic" customSize={true} className="p-6 sm:p-4">
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <h3 className="text-xl font-bold">Uploading...</h3>
@@ -397,7 +399,7 @@ export function UploadInterface() {
 
             {/* Recent Uploads */}
             {uploadedFiles.length > 0 && (
-              <GlowCard glowColor="frost" customSize={true} className="p-6">
+              <GlowCard glowColor="frost" customSize={true} className="p-6 sm:p-4">
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <h3 className="text-xl font-bold">Recent Uploads</h3>
@@ -428,10 +430,10 @@ export function UploadInterface() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6 order-2">
             <TokenClaim />
 
-            <GlowCard glowColor="ice" customSize={true} className="p-6">
+            <GlowCard glowColor="ice" customSize={true} className="p-6 sm:p-4">
               <div className="space-y-4">
                 <h3 className="text-xl font-bold">Upload Summary</h3>
 
@@ -472,7 +474,7 @@ export function UploadInterface() {
               </div>
             </GlowCard>
 
-            <GlowCard glowColor="glacier" customSize={true} className="p-6">
+            <GlowCard glowColor="glacier" customSize={true} className="p-6 sm:p-4">
               <div className="space-y-3">
                 <h4 className="text-lg font-bold">How it Works</h4>
                 

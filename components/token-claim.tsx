@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useAccount, useWriteContract, useReadContract } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Loader2 } from "lucide-react";
+import { GlowCard } from "@/components/spotlight-card";
+import { CustomTokenModal } from "@/components/custom-token-modal";
+import { CheckCircle, Loader2, Coins } from "lucide-react";
 
 // GLCR Token contract on Avalanche Fuji Testnet (replace with actual deployed contract)
 const GLCR_CONTRACT_ADDRESS = "0x1234567890123456789012345678901234567890" as const;
@@ -79,56 +81,58 @@ export function TokenClaim() {
 
   if (!isConnected) {
     return (
-      <Card className="bg-gray-900 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white">Claim Free GLCR Tokens</CardTitle>
-          <CardDescription className="text-gray-400">
+      <GlowCard glowColor="frost" customSize={true} className="p-4 sm:p-6">
+        <div className="space-y-3">
+          <h3 className="text-lg font-bold text-white">Claim Free GLCR Tokens</h3>
+          <p className="text-sm text-gray-400">
             Connect your wallet to claim 1000 free GLCR tokens to get started with Glacier
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-500">Please connect your MetaMask wallet first</p>
-        </CardContent>
-      </Card>
+          </p>
+          <p className="text-xs text-gray-500">Please connect your MetaMask wallet first</p>
+        </div>
+      </GlowCard>
     );
   }
 
   if (hasClaimed) {
     return (
-      <Card className="bg-gray-900 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-white" />
-            Tokens Claimed Successfully!
-          </CardTitle>
-          <CardDescription className="text-gray-400">
-            You have received 1000 GLCR tokens
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <p className="text-sm text-gray-300">
-              <strong>Balance:</strong> {balance ? `${Number(balance) / 10**18} GLCR` : "1000 GLCR"}
+      <CustomTokenModal>
+        <GlowCard glowColor="ice" customSize={true} className="p-4 sm:p-6 cursor-pointer hover:scale-105 transition-transform">
+          <div className="space-y-3">
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-white" />
+              Tokens Claimed Successfully!
+            </h3>
+            <p className="text-sm text-gray-400">
+              You have received 1000 GLCR tokens
             </p>
-            <p className="text-xs text-gray-500">
-              You can now upload files to the Glacier network
-            </p>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-300">
+                <strong>Balance:</strong> {balance ? `${Number(balance) / 10**18} GLCR` : "1000 GLCR"}
+              </p>
+              <p className="text-xs text-gray-500">
+                Click to view token details
+              </p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </GlowCard>
+      </CustomTokenModal>
     );
   }
 
   return (
-    <Card className="bg-gray-900 border-gray-700">
-      <CardHeader>
-        <CardTitle className="text-white">Claim Free GLCR Tokens</CardTitle>
-        <CardDescription className="text-gray-400">
-          Get 1000 free GLCR tokens to start using Glacier's decentralized storage
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <CustomTokenModal>
+      <GlowCard glowColor="arctic" customSize={true} className="p-4 sm:p-6 cursor-pointer hover:scale-105 transition-transform">
         <div className="space-y-4">
+          <div className="space-y-2">
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <Coins className="w-5 h-5 text-blue-400" />
+              Claim Free GLCR Tokens
+            </h3>
+            <p className="text-sm text-gray-400">
+              Get 1000 free GLCR tokens to start using Glacier's decentralized storage
+            </p>
+          </div>
+
           <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -144,26 +148,11 @@ export function TokenClaim() {
             </div>
           </div>
 
-          <Button
-            onClick={handleClaimTokens}
-            disabled={isPending}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            {isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Claiming Tokens...
-              </>
-            ) : (
-              "Claim 1000 Free GLCR Tokens"
-            )}
-          </Button>
-
           <p className="text-xs text-gray-500 text-center">
-            These tokens will be used to pay for storage on the Glacier network
+            Click to manage your GLCR tokens and claim rewards
           </p>
         </div>
-      </CardContent>
-    </Card>
+      </GlowCard>
+    </CustomTokenModal>
   );
 }
