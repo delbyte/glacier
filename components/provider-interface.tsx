@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 export function ProviderInterface() {
@@ -35,7 +36,7 @@ export function ProviderInterface() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <Link href="/" className="flex items-center space-x-2 text-primary hover:text-primary/80 mb-4">
-            <span>←</span>
+            <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
           </Link>
           <h1 className="text-3xl font-bold text-foreground">Become a Storage Provider</h1>
@@ -49,7 +50,7 @@ export function ProviderInterface() {
         ) : (
           <div className="text-sm text-muted-foreground">
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-white rounded-full"></div>
               <span>Wallet Connected</span>
             </div>
           </div>
@@ -193,19 +194,19 @@ export function ProviderInterface() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center space-x-2 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-white rounded-full"></div>
                 <span>Reliable internet connection</span>
               </div>
               <div className="flex items-center space-x-2 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-white rounded-full"></div>
                 <span>Available storage space</span>
               </div>
               <div className="flex items-center space-x-2 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-white rounded-full"></div>
                 <span>GLCR tokens for staking</span>
               </div>
               <div className="flex items-center space-x-2 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-white rounded-full"></div>
                 <span>24/7 uptime preferred</span>
               </div>
             </CardContent>
