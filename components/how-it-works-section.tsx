@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { GlowCard } from "@/components/spotlight-card"
 
 const steps = [
   {
@@ -33,7 +33,7 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-muted/30">
+    <section className="py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4 text-balance">How Glacier Works</h2>
@@ -44,22 +44,20 @@ export function HowItWorksSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {steps.map((step, index) => (
-            <Card key={index} className="relative overflow-hidden">
-              <CardHeader>
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xl font-bold">
-                    {step.step}
-                  </div>
-                  <CardTitle className="text-xl">{step.title}</CardTitle>
+            <GlowCard key={index} glowColor="deep" customSize={true} className="p-6 h-72">
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xl font-bold">
+                  {step.step}
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <CardDescription className="text-base leading-relaxed">{step.description}</CardDescription>
+                <h3 className="text-xl font-semibold text-foreground">{step.title}</h3>
+              </div>
+              <div className="space-y-4">
+                <p className="text-base leading-relaxed text-muted-foreground">{step.description}</p>
                 <div className="text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg">
                   <strong>Technical Detail:</strong> {step.details}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </GlowCard>
           ))}
         </div>
       </div>
