@@ -26,7 +26,18 @@
         "./*"
       ]
     },
-    "target": "ES2017"
+    "target": "ES2020",
+    // Performance optimizations
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    // Faster type checking
+    "assumeChangesOnlyAffectDirectDependencies": true,
+    "importsNotUsedAsValues": "remove",
+    // Memory optimizations
+    "preserveWatchOutput": true,
+    "pretty": true
   },
   "include": [
     "next-env.d.ts",
@@ -35,6 +46,12 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
-  ]
+    "node_modules",
+    ".next",
+    "out",
+    "dist"
+  ],
+  "ts-node": {
+    "esm": true
+  }
 }
