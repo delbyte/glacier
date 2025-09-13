@@ -33,36 +33,38 @@ export function ProviderInterface() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 max-w-4xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <Link href="/" className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+          <div className="flex-1">
+            <Link href="/" className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 mb-2 sm:mb-4">
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Home</span>
+              <span className="text-sm sm:text-base">Back to Home</span>
             </Link>
-            <h1 className="text-3xl font-bold text-white">Become a Storage Provider</h1>
-            <p className="text-gray-400">Earn passive income by providing storage to the network</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Become a Storage Provider</h1>
+            <p className="text-gray-400 text-sm sm:text-base">Earn passive income by providing storage to the network</p>
           </div>
 
-          {!walletConnected ? (
-            <Button onClick={connectWallet} size="lg">
-              Connect Wallet
-            </Button>
-          ) : (
-            <div className="text-sm text-gray-300">
-              <div className="flex items-center space-x-2">
+          <div className="flex flex-col items-stretch sm:items-end gap-3">
+            {!walletConnected ? (
+              <Button onClick={connectWallet} size="lg" className="w-full sm:w-auto">
+                Connect Wallet
+              </Button>
+            ) : (
+              <div className="text-sm text-gray-300">
+                <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-white rounded-full"></div>
                 <span>Wallet Connected</span>
               </div>
             </div>
-          )}
+            )}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
           {/* Registration Form */}
-          <div className="lg:col-span-2 space-y-6">
-            <GlowCard glowColor="glacier" customSize={true} className="p-6">
+          <div className="xl:col-span-2 space-y-4 sm:space-y-6 order-1">
+            <GlowCard glowColor="glacier" customSize={true} className="p-6 sm:p-4">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold">Provider Registration</h3>
@@ -115,7 +117,7 @@ export function ProviderInterface() {
               </div>
             </GlowCard>
 
-            <GlowCard glowColor="deep" customSize={true} className="p-6">
+            <GlowCard glowColor="deep" customSize={true} className="p-6 sm:p-4">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold">Setup Instructions</h3>
@@ -173,8 +175,8 @@ export function ProviderInterface() {
           </div>
 
           {/* Info Sidebar */}
-          <div className="space-y-6">
-            <GlowCard glowColor="ice" customSize={true} className="p-6">
+          <div className="space-y-4 sm:space-y-6 order-2">
+            <GlowCard glowColor="ice" customSize={true} className="p-6 sm:p-4">
               <div className="space-y-4">
                 <h3 className="text-xl font-bold">Earnings Potential</h3>
 
@@ -199,7 +201,7 @@ export function ProviderInterface() {
               </div>
             </GlowCard>
 
-            <GlowCard glowColor="arctic" customSize={true} className="p-6">
+            <GlowCard glowColor="arctic" customSize={true} className="p-6 sm:p-4">
               <div className="space-y-4">
                 <h3 className="text-xl font-bold">Requirements</h3>
 
