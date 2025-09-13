@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Mountain } from "lucide-react"
 
 export function Footer() {
   return (
@@ -9,7 +10,7 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex items-center justify-center">
-                <span className="text-lg font-bold text-sidebar-primary-foreground">🏔️</span>
+                <Mountain className="w-5 h-5 text-sidebar-primary-foreground" />
               </div>
               <span className="text-xl font-bold text-sidebar-foreground">Glacier</span>
             </div>

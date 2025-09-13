@@ -1,4 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { GlowCard } from "@/components/spotlight-card"
+import { FolderOpen, DollarSign } from "lucide-react"
 
 export function BenefitsSection() {
   return (
@@ -13,13 +14,15 @@ export function BenefitsSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* For Renters */}
-          <Card className="border-2 border-primary/20">
-            <CardHeader className="text-center pb-8">
-              <div className="text-6xl mb-4">📁</div>
-              <CardTitle className="text-2xl text-primary">For File Storage</CardTitle>
-              <CardDescription className="text-lg">Secure, private, censorship-resistant storage</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <GlowCard glowColor="ice" customSize={true} className="p-8 border-2 border-primary/20 h-[500px]">
+            <div className="text-center pb-8">
+              <div className="text-6xl mb-4">
+                <FolderOpen className="w-16 h-16 text-primary mx-auto" />
+              </div>
+              <h3 className="text-2xl font-semibold text-primary mb-2">For File Storage</h3>
+              <p className="text-lg text-muted-foreground">Secure, private, censorship-resistant storage</p>
+            </div>
+            <div className="space-y-6">
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
@@ -50,17 +53,19 @@ export function BenefitsSection() {
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlowCard>
 
           {/* For Providers */}
-          <Card className="border-2 border-accent/20">
-            <CardHeader className="text-center pb-8">
-              <div className="text-6xl mb-4">💰</div>
-              <CardTitle className="text-2xl text-accent">For Storage Providers</CardTitle>
-              <CardDescription className="text-lg">Monetize your unused hard drive space</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <GlowCard glowColor="arctic" customSize={true} className="p-8 border-2 border-accent/20 h-[500px]">
+            <div className="text-center pb-8">
+              <div className="text-6xl mb-4">
+                <DollarSign className="w-16 h-16 text-accent mx-auto" />
+              </div>
+              <h3 className="text-2xl font-semibold text-accent mb-2">For Storage Providers</h3>
+              <p className="text-lg text-muted-foreground">Monetize your unused hard drive space</p>
+            </div>
+            <div className="space-y-6">
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0"></div>
@@ -91,8 +96,8 @@ export function BenefitsSection() {
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlowCard>
         </div>
       </div>
     </section>
