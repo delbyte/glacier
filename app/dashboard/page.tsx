@@ -244,7 +244,7 @@ export default function Dashboard() {
                       <div key={file.id} className="flex items-center justify-between p-4 bg-gray-800 rounded-lg hover:bg-gray-750 transition-colors">
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
-                            <FileText className="w-5 h-5 text-blue-400" />
+                            <FileText className="w-5 h-5 text-white" />
                           </div>
                           <div>
                             <h4 className="font-medium text-white">{file.name}</h4>

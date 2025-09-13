@@ -7,8 +7,7 @@ const testimonials = [
   {
     author: {
       name: "My Mom",
-      handle: "@mymom",
-      avatar: "/avatars/sarah.jpg"
+      handle: "@mymom"
     },
     text: "Glacier has revolutionized how I store my recipe books. The cryptographic proofs give me complete confidence in data integrity.",
     href: "#"
@@ -16,8 +15,7 @@ const testimonials = [
   {
     author: {
       name: "My Dad",
-      handle: "@mydad",
-      avatar: "/avatars/marcus.jpg"
+      handle: "@mydad"
     },
     text: "As a storage provider, Glacier's smart contracts make everything automated and trustless. I've never seen a more elegant system.",
     href: "#"
@@ -25,8 +23,7 @@ const testimonials = [
   {
     author: {
       name: "My Dog",
-      handle: "@dog",
-      avatar: "/avatars/emily.jpg"
+      handle: "@dog"
     },
     text: "Woof. Woof?",
     href: "#"
@@ -34,8 +31,7 @@ const testimonials = [
   {
     author: {
       name: "Me",
-      handle: "@delbyte",
-      avatar: "/avatars/alex.jpg"
+      handle: "@delbyte"
     },
     text: "The performance and reliability of Glacier's network is outstanding. Zero downtime and lightning-fast retrievals.",
     href: "#"
@@ -43,8 +39,7 @@ const testimonials = [
   {
     author: {
       name: "My Girlfriend",
-      handle: "@girlfren",
-      avatar: "/avatars/lisa.jpg"
+      handle: "@girlfren"
     },
     text: "Finally, a storage solution that truly respects user privacy. No more worrying about data being accessed without permission.",
     href: "#"
@@ -52,8 +47,7 @@ const testimonials = [
   {
     author: {
       name: "My Other Dog who is fluent in English",
-      handle: "@smartdog",
-      avatar: "/avatars/david.jpg"
+      handle: "@smartdog"
     },
     text: "The economic incentives for providers are perfectly balanced. I've been earning steady income while contributing to the network.",
     href: "#"

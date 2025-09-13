@@ -1,10 +1,7 @@
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import DottedMap from "dotted-map";
-import Image from "next/image";
-import { useTheme } from "next-themes";
 
 interface MapProps {
   dots?: Array<{
@@ -26,24 +23,12 @@ export function WorldMap({
   animationDuration = 2,
   loop = true
 }: MapProps) {
-  const svgRef = useRef<SVGSVGElement>(null);
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
-  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
-  const map = useMemo(
-    () => new DottedMap({ height: 100, grid: "diagonal" }),
-    []
-  );
-
-  const svgMap = useMemo(
-    () => map.getSVG({
-      radius: 0.22,
-      color: theme === "dark" ? "#FFFFFF40" : "#00000040",
-      shape: "circle",
-      backgroundColor: theme === "dark" ? "#000000" : "#FFFFFF",
-    }),
-    [map, theme]
-  );
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const projectPoint = (lat: number, lng: number) => {
     const x = (lng + 180) * (800 / 360);
@@ -63,10 +48,10 @@ export function WorldMap({
   // Calculate animation timing
   const staggerDelay = 0.3;
   const totalAnimationTime = dots.length * staggerDelay + animationDuration;
-  const pauseTime = 2; // Pause for 2 seconds when all paths are drawn
+  const pauseTime = 2;
   const fullCycleDuration = totalAnimationTime + pauseTime;
 
-  // Memoize all path calculations to prevent hydration mismatches
+  // Memoize all path calculations
   const pathData = useMemo(() => {
     return dots.map((dot, i) => {
       const startPoint = projectPoint(dot.start.lat, dot.start.lng);
@@ -82,23 +67,46 @@ export function WorldMap({
     });
   }, [dots]);
 
+  if (!mounted) {
+    return <div className="w-full aspect-[2/1] bg-gray-900 rounded-lg animate-pulse" />;
+  }
+
   return (
-    <div className="w-full aspect-[2/1] md:aspect-[2.5/1] lg:aspect-[2/1] bg-black dark:bg-black rounded-lg relative font-sans overflow-hidden">
-      <Image
-        src={`data:image/svg+xml;utf8,${encodeURIComponent(svgMap)}`}
-        className="h-full w-full [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_90%,transparent)] pointer-events-none select-none object-cover"
-        alt="world map"
-        height="495"
-        width="1056"
-        draggable={false}
-        priority
-      />
+    <div className="w-full aspect-[2/1] md:aspect-[2.5/1] lg:aspect-[2/1] bg-gray-900 dark:bg-gray-900 rounded-lg relative font-sans overflow-hidden">
+      {/* Simple world map background - no WebGL */}
+      <div className="absolute inset-0 opacity-20">
+        <svg
+          viewBox="0 0 800 400"
+          className="w-full h-full"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Simplified continents outline */}
+          <path
+            d="M100 150 Q200 140 300 150 L400 145 Q500 140 600 145 L700 140 Q750 135 800 140"
+            stroke="rgba(59, 130, 246, 0.3)"
+            strokeWidth="2"
+            fill="none"
+          />
+          <path
+            d="M80 200 Q180 190 280 200 L380 195 Q480 190 580 195 L680 190 Q730 185 780 190"
+            stroke="rgba(59, 130, 246, 0.3)"
+            strokeWidth="2"
+            fill="none"
+          />
+          <path
+            d="M120 250 Q220 240 320 250 L420 245 Q520 240 620 245 L720 240 Q770 235 800 240"
+            stroke="rgba(59, 130, 246, 0.3)"
+            strokeWidth="2"
+            fill="none"
+          />
+        </svg>
+      </div>
+
       <svg
-        ref={svgRef}
         viewBox="0 0 800 400"
         className="w-full h-full absolute inset-0 pointer-events-auto select-none"
         preserveAspectRatio="xMidYMid meet"
-        suppressHydrationWarning
       >
         <defs>
           <linearGradient id="path-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -119,7 +127,6 @@ export function WorldMap({
         </defs>
 
         {pathData.map((data, i) => {
-          // Calculate keyframe times for this specific path
           const startTime = (i * staggerDelay) / fullCycleDuration;
           const endTime = (i * staggerDelay + animationDuration) / fullCycleDuration;
           const resetTime = totalAnimationTime / fullCycleDuration;
@@ -148,7 +155,6 @@ export function WorldMap({
                   delay: i * staggerDelay,
                   ease: "easeInOut",
                 }}
-                suppressHydrationWarning
               />
               
               {loop && (
@@ -171,7 +177,6 @@ export function WorldMap({
                     offsetPath: `path('${data.path}')`,
                     offsetDistance: "0%",
                   }}
-                  suppressHydrationWarning
                 />
               )}
             </g>
@@ -179,7 +184,7 @@ export function WorldMap({
         })}
 
         {pathData.map((data, i) => {
-          const dot = dots[i]; // Get the original dot data for labels
+          const dot = dots[i];
           
           return (
             <g key={`points-group-${i}`}>
@@ -241,7 +246,7 @@ export function WorldMap({
                       className="block"
                     >
                       <div className="flex items-center justify-center h-full">
-                        <span className="text-sm font-medium px-2 py-0.5 rounded-md bg-black/95 dark:bg-black/95 text-white dark:text-white border border-gray-700 dark:border-gray-700 shadow-sm">
+                        <span className="text-sm font-medium px-2 py-0.5 rounded-md bg-black/95 text-white border border-gray-700 shadow-sm">
                           {dot.start.label}
                         </span>
                       </div>
@@ -308,7 +313,7 @@ export function WorldMap({
                       className="block"
                     >
                       <div className="flex items-center justify-center h-full">
-                        <span className="text-sm font-medium px-2 py-0.5 rounded-md bg-black/95 dark:bg-black/95 text-white dark:text-white border border-gray-700 dark:border-gray-700 shadow-sm">
+                        <span className="text-sm font-medium px-2 py-0.5 rounded-md bg-black/95 text-white border border-gray-700 shadow-sm">
                           {dot.end.label}
                         </span>
                       </div>
@@ -328,7 +333,7 @@ export function WorldMap({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute bottom-4 left-4 bg-black/90 dark:bg-black/90 text-white dark:text-white px-3 py-2 rounded-lg text-sm font-medium backdrop-blur-sm sm:hidden border border-gray-700 dark:border-gray-700"
+            className="absolute bottom-4 left-4 bg-black/90 text-white px-3 py-2 rounded-lg text-sm font-medium backdrop-blur-sm sm:hidden border border-gray-700"
           >
             {hoveredLocation}
           </motion.div>

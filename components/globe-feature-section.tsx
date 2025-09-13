@@ -106,14 +106,25 @@ export function Globe({
     window.addEventListener("resize", onResize)
     onResize()
 
-    const globe = createGlobe(canvasRef.current!, {
+    // Check if WebGL is available before creating the globe
+    if (!canvasRef.current) return
+
+    const canvas = canvasRef.current
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+    
+    if (!gl) {
+      console.warn('WebGL not supported, skipping globe initialization')
+      return
+    }
+
+    const globe = createGlobe(canvas, {
       ...config,
       width: width * 2,
       height: width * 2,
       onRender,
     })
 
-    setTimeout(() => (canvasRef.current!.style.opacity = "1"))
+    setTimeout(() => (canvas.style.opacity = "1"))
     return () => globe.destroy()
   }, [])
 
