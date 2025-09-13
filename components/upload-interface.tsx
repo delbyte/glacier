@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 interface Provider {
@@ -92,7 +93,7 @@ export function UploadInterface() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <Link href="/" className="flex items-center space-x-2 text-primary hover:text-primary/80 mb-4">
-            <span>←</span>
+            <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
           </Link>
           <h1 className="text-3xl font-bold text-foreground">Upload to Glacier</h1>
@@ -106,7 +107,7 @@ export function UploadInterface() {
         ) : (
           <div className="text-sm text-muted-foreground">
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-white rounded-full"></div>
               <span>Wallet Connected</span>
             </div>
           </div>
