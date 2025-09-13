@@ -14,6 +14,11 @@ export const metadata: Metadata = {
   description:
     "Secure, trustless file storage powered by Avalanche blockchain. Earn passive income by providing storage or store your files with cryptographic security.",
   generator: "v0.app",
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.svg'
+  }
 }
 
 export default function RootLayout({
