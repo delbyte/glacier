@@ -13,6 +13,7 @@ import { ArrowLeft, Upload, FileText, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { WalletConnection } from "@/components/wallet-connection"
 import { TokenClaim } from "@/components/token-claim"
+import { GlowCard } from "@/components/spotlight-card"
 
 interface Provider {
   id: string
@@ -182,21 +183,22 @@ export function UploadInterface() {
               </p>
             </div>
 
-            <Card className="bg-gray-900 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-center">Wallet Connection Required</CardTitle>
-                <CardDescription className="text-center">
-                  You need to connect your MetaMask wallet and claim GLCR tokens before uploading files
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
+            <GlowCard glowColor="ice" customSize={true} className="p-8 border-2 border-blue-500/20">
+              <div className="text-center space-y-6">
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Wallet Connection Required</h3>
+                  <p className="text-gray-300">
+                    You need to connect your MetaMask wallet and claim GLCR tokens before uploading files
+                  </p>
+                </div>
+
                 <div className="flex justify-center">
                   <WalletConnection />
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 text-left">
-                    <Upload className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                    <Upload className="w-5 h-5 text-white flex-shrink-0" />
                     <div>
                       <p className="font-medium">Secure Upload</p>
                       <p className="text-sm text-gray-400">Your files are encrypted and distributed across multiple nodes</p>
@@ -204,7 +206,7 @@ export function UploadInterface() {
                   </div>
 
                   <div className="flex items-center gap-3 text-left">
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-white flex-shrink-0" />
                     <div>
                       <p className="font-medium">Free Tokens</p>
                       <p className="text-sm text-gray-400">Claim 1000 GLCR tokens to get started</p>
@@ -212,15 +214,15 @@ export function UploadInterface() {
                   </div>
 
                   <div className="flex items-center gap-3 text-left">
-                    <FileText className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                    <FileText className="w-5 h-5 text-white flex-shrink-0" />
                     <div>
                       <p className="font-medium">Easy Management</p>
                       <p className="text-sm text-gray-400">View and manage all your files in the dashboard</p>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </GlowCard>
           </div>
         </div>
       </div>
@@ -255,22 +257,23 @@ export function UploadInterface() {
           {/* Upload Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* File Selection */}
-            <Card className="bg-gray-900 border-gray-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Upload className="w-5 h-5" />
-                  Select File
-                </CardTitle>
-                <CardDescription>
-                  Choose the file you want to store securely
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <GlowCard glowColor="glacier" customSize={true} className="p-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold flex items-center gap-2">
+                    <Upload className="w-5 h-5" />
+                    Select File
+                  </h3>
+                  <p className="text-gray-400">
+                    Choose the file you want to store securely
+                  </p>
+                </div>
+
                 <div
-                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 ${
                     dragActive
-                      ? 'border-blue-500 bg-blue-500/10'
-                      : 'border-gray-600 hover:border-gray-500'
+                      ? 'border-blue-500 bg-blue-500/10 transform scale-[1.02]'
+                      : 'border-gray-600 hover:border-gray-500 hover:bg-gray-800/20'
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -295,7 +298,7 @@ export function UploadInterface() {
                     <Button
                       asChild
                       disabled={uploading}
-                      className="bg-blue-600 hover:bg-blue-700"
+                      size="lg"
                     >
                       <span>{file ? 'Change File' : 'Choose File'}</span>
                     </Button>
@@ -304,7 +307,7 @@ export function UploadInterface() {
 
                 {file && (
                   <div className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
-                    <FileText className="w-5 h-5 text-blue-400" />
+                    <FileText className="w-5 h-5 text-white" />
                     <div>
                       <p className="font-medium text-sm">{file.name}</p>
                       <p className="text-xs text-gray-400">
@@ -328,25 +331,26 @@ export function UploadInterface() {
                     This password encrypts your file client-side. Keep it safe - we cannot recover it.
                   </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </GlowCard>
 
             {/* Provider Selection */}
-            <Card className="bg-gray-900 border-gray-700">
-              <CardHeader>
-                <CardTitle>Select Storage Providers</CardTitle>
-                <CardDescription>Choose which providers will store parts of your file</CardDescription>
-              </CardHeader>
-              <CardContent>
+            <GlowCard glowColor="deep" customSize={true} className="p-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold">Select Storage Providers</h3>
+                  <p className="text-gray-400">Choose which providers will store parts of your file</p>
+                </div>
+
                 <div className="space-y-4">
                   {providers.map((provider) => (
-                    <div key={provider.id} className="flex items-center space-x-3 p-3 border border-gray-700 rounded-lg bg-gray-800/50">
+                    <div key={provider.id} className="flex items-center space-x-3 p-3 border border-gray-700 rounded-lg bg-gray-800/50 hover:bg-gray-800/80 transition-all duration-200 hover:transform hover:scale-[1.01] cursor-pointer">
                       <Checkbox
                         checked={provider.selected}
                         onCheckedChange={() => handleProviderToggle(provider.id)}
                         className="border-gray-600"
                       />
-                      <div className="flex-1">
+                      <div className="flex-1" onClick={() => handleProviderToggle(provider.id)}>
                         <div className="flex items-center justify-between">
                           <h4 className="font-medium text-white">{provider.name}</h4>
                           <span className="text-sm text-gray-400">{provider.price}</span>
@@ -367,44 +371,46 @@ export function UploadInterface() {
                     </AlertDescription>
                   </Alert>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </GlowCard>
 
             {/* Upload Progress */}
             {uploading && (
-              <Card className="bg-gray-900 border-gray-700">
-                <CardHeader>
-                  <CardTitle>Uploading...</CardTitle>
-                  <CardDescription>Encrypting, chunking, and distributing your file</CardDescription>
-                </CardHeader>
-                <CardContent>
+              <GlowCard glowColor="arctic" customSize={true} className="p-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold">Uploading...</h3>
+                    <p className="text-gray-400">Encrypting, chunking, and distributing your file</p>
+                  </div>
+
                   <Progress value={uploadProgress} className="w-full" />
-                  <p className="text-sm text-gray-400 mt-2">
+                  <p className="text-sm text-gray-400">
                     {uploadProgress < 30 && "Encrypting file..."}
                     {uploadProgress >= 30 && uploadProgress < 60 && "Splitting into chunks..."}
                     {uploadProgress >= 60 && uploadProgress < 90 && "Uploading to providers..."}
                     {uploadProgress >= 90 && "Creating smart contracts..."}
                     {uploadProgress === 100 && "Upload complete!"}
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </GlowCard>
             )}
 
             {/* Recent Uploads */}
             {uploadedFiles.length > 0 && (
-              <Card className="bg-gray-900 border-gray-700">
-                <CardHeader>
-                  <CardTitle>Recent Uploads</CardTitle>
-                  <CardDescription>
-                    Your recently uploaded files ({uploadedFiles.length} total)
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+              <GlowCard glowColor="frost" customSize={true} className="p-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold">Recent Uploads</h3>
+                    <p className="text-gray-400">
+                      Your recently uploaded files ({uploadedFiles.length} total)
+                    </p>
+                  </div>
+
                   <div className="space-y-3">
                     {uploadedFiles.slice(-3).reverse().map((file) => (
-                      <div key={file.id} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                      <div key={file.id} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-all duration-200 hover:transform hover:scale-[1.01] cursor-pointer">
                         <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-blue-400" />
+                          <FileText className="w-5 h-5 text-white" />
                           <div>
                             <p className="font-medium text-sm">{file.name}</p>
                             <p className="text-xs text-gray-400">
@@ -412,12 +418,12 @@ export function UploadInterface() {
                             </p>
                           </div>
                         </div>
-                        <CheckCircle className="w-5 h-5 text-green-500" />
+                        <CheckCircle className="w-5 h-5 text-white" />
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </GlowCard>
             )}
           </div>
 
@@ -425,11 +431,10 @@ export function UploadInterface() {
           <div className="space-y-6">
             <TokenClaim />
 
-            <Card className="bg-gray-900 border-gray-700">
-              <CardHeader>
-                <CardTitle>Upload Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <GlowCard glowColor="ice" customSize={true} className="p-6">
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold">Upload Summary</h3>
+
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>File Size:</span>
@@ -452,36 +457,45 @@ export function UploadInterface() {
                 <Button
                   onClick={handleUpload}
                   disabled={!file || !password || selectedProviders.length < 1 || uploading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600"
+                  className="w-full transition-all duration-200 hover:transform hover:scale-[1.02] disabled:hover:scale-100"
+                  size="lg"
                 >
-                  {uploading ? "Uploading..." : "Upload File"}
+                  {uploading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Uploading...
+                    </span>
+                  ) : (
+                    "Upload File"
+                  )}
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </GlowCard>
 
-            <Card className="bg-gray-900 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-sm">How it Works</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-xs text-gray-400">
-                <div className="flex items-start space-x-2">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                  <span>File encrypted with your password</span>
+            <GlowCard glowColor="glacier" customSize={true} className="p-6">
+              <div className="space-y-3">
+                <h4 className="text-lg font-bold">How it Works</h4>
+                
+                <div className="space-y-3 text-sm text-gray-400">
+                  <div className="flex items-start space-x-2">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full mt-1.5 flex-shrink-0"></div>
+                    <span>File encrypted with your password</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full mt-1.5 flex-shrink-0"></div>
+                    <span>Split into chunks across providers</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full mt-1.5 flex-shrink-0"></div>
+                    <span>Smart contracts ensure storage</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full mt-1.5 flex-shrink-0"></div>
+                    <span>Cryptographic proofs verify integrity</span>
+                  </div>
                 </div>
-                <div className="flex items-start space-x-2">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                  <span>Split into chunks across providers</span>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                  <span>Smart contracts ensure storage</span>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                  <span>Cryptographic proofs verify integrity</span>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </GlowCard>
           </div>
         </div>
       </div>

@@ -98,7 +98,7 @@ export function TokenClaim() {
       <Card className="bg-gray-900 border-gray-700">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-500" />
+            <CheckCircle className="w-5 h-5 text-white" />
             Tokens Claimed Successfully!
           </CardTitle>
           <CardDescription className="text-gray-400">

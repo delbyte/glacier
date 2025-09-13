@@ -51,7 +51,7 @@ export function WalletConnection({ className = "", showBalance = true }: WalletC
                     return (
                       <Button
                         onClick={openConnectModal}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        size="lg"
                       >
                         Connect Wallet
                       </Button>
@@ -150,7 +150,7 @@ export function WalletConnection({ className = "", showBalance = true }: WalletC
                   return (
                     <Button
                       onClick={openConnectModal}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
+                      size="lg"
                     >
                       Connect MetaMask
                     </Button>

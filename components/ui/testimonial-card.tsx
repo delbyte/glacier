@@ -1,10 +1,8 @@
 import { cn } from "@/lib/utils"
-import { Avatar, AvatarImage } from "@/components/ui/avatar"
 
 export interface TestimonialAuthor {
   name: string
   handle: string
-  avatar: string
 }
 
 export interface TestimonialCardProps {
@@ -37,9 +35,6 @@ export function TestimonialCard({
       )}
     >
       <div className="flex items-center gap-3">
-        <Avatar className="h-12 w-12">
-          <AvatarImage src={author.avatar} alt={author.name} />
-        </Avatar>
         <div className="flex flex-col items-start">
           <h3 className="text-md font-semibold leading-none text-foreground">
             {author.name}
