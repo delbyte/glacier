@@ -75,7 +75,7 @@ export class FileProcessor {
     // Mock decryption (in real implementation, use proper AES decryption)
     const decryptedData = reassembledData // This should be decrypted
 
-    return new File([decryptedData], encryptedFile.originalName)
+    return new File([decryptedData as any], encryptedFile.originalName)
   }
 
   private reassembleChunks(chunks: FileChunk[]): Uint8Array {

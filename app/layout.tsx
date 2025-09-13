@@ -5,6 +5,8 @@ import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import { ThemeProvider } from "next-themes"
+import { Providers } from "@/components/providers"
+import "@rainbow-me/rainbowkit/styles.css"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -22,21 +24,23 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Suspense fallback={
-            <div className="min-h-screen bg-black flex items-center justify-center">
-              <div className="text-white">Loading...</div>
-            </div>
-          }>
-            {children}
-          </Suspense>
-        </ThemeProvider>
-        <Analytics />
+        <Providers>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Suspense fallback={
+              <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-white">Loading...</div>
+              </div>
+            }>
+              {children}
+            </Suspense>
+          </ThemeProvider>
+        </Providers>
+        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )

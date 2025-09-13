@@ -1,43 +1,100 @@
-import dynamic from "next/dynamic"
+"use client"
+
 import { HeroSection } from "@/components/hero-section"
+import { Suspense, lazy } from "react"
+import { motion } from "framer-motion"
 
-// Dynamically import sections that are below the fold for better initial load performance
-const FeaturesSection = dynamic(() => import("@/components/features-section").then(mod => ({ default: mod.FeaturesSection })), {
-  loading: () => <div className="py-24 px-4 sm:px-6 lg:px-8"><div className="max-w-7xl mx-auto"><div className="animate-pulse bg-gray-800 h-96 rounded-lg"></div></div></div>
-})
+// Lazy load heavy components
+const FeaturesSection = lazy(() => import("@/components/features-section").then(m => ({ default: m.FeaturesSection })))
+const HowItWorksSection = lazy(() => import("@/components/how-it-works-section").then(m => ({ default: m.HowItWorksSection })))
+const BenefitsSection = lazy(() => import("@/components/benefits-section").then(m => ({ default: m.BenefitsSection })))
+const TestimonialsSection = lazy(() => import("@/components/testimonials-section").then(m => ({ default: m.TestimonialsSection })))
+const CTASection = lazy(() => import("@/components/cta-section").then(m => ({ default: m.CTASection })))
+const Footer = lazy(() => import("@/components/footer").then(m => ({ default: m.Footer })))
 
-const HowItWorksSection = dynamic(() => import("@/components/how-it-works-section").then(mod => ({ default: mod.HowItWorksSection })), {
-  loading: () => <div className="py-24 px-4 sm:px-6 lg:px-8"><div className="max-w-7xl mx-auto"><div className="animate-pulse bg-gray-800 h-96 rounded-lg"></div></div></div>
-})
-
-const BenefitsSection = dynamic(() => import("@/components/benefits-section").then(mod => ({ default: mod.BenefitsSection })), {
-  loading: () => <div className="py-24 px-4 sm:px-6 lg:px-8"><div className="max-w-7xl mx-auto"><div className="animate-pulse bg-gray-800 h-96 rounded-lg"></div></div></div>
-})
-
-const TestimonialsSection = dynamic(() => import("@/components/testimonials-section").then(mod => ({ default: mod.TestimonialsSection })), {
-  loading: () => <div className="py-24 px-4 sm:px-6 lg:px-8"><div className="max-w-7xl mx-auto"><div className="animate-pulse bg-gray-800 h-96 rounded-lg"></div></div></div>
-})
-
-const CTASection = dynamic(() => import("@/components/cta-section").then(mod => ({ default: mod.CTASection })), {
-  loading: () => <div className="py-24 px-4 sm:px-6 lg:px-8"><div className="max-w-7xl mx-auto"><div className="animate-pulse bg-gray-800 h-96 rounded-lg"></div></div></div>
-})
-
-const Footer = dynamic(() => import("@/components/footer").then(mod => ({ default: mod.Footer })), {
-  loading: () => <div className="py-24 px-4 sm:px-6 lg:px-8"><div className="max-w-7xl mx-auto"><div className="animate-pulse bg-gray-800 h-96 rounded-lg"></div></div></div>
-})
+// Lightweight loading fallback
+const SectionSkeleton = ({ height = "400px" }: { height?: string }) => (
+  <div className="w-full animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" style={{ height }}>
+    <div className="container mx-auto px-4 h-full flex items-center justify-center">
+      <div className="text-gray-500">Loading...</div>
+    </div>
+  </div>
+)
 
 export default function HomePage() {
   return (
     <main className="min-h-screen">
+      {/* Hero loads immediately - it's above the fold */}
       <HeroSection />
-      <FeaturesSection />
-      <HowItWorksSection />
-      <BenefitsSection />
-      <section id="testimonials">
-        <TestimonialsSection />
-      </section>
-      <CTASection />
-      <Footer />
+      
+      {/* Lazy load everything else */}
+      <Suspense fallback={<SectionSkeleton height="600px" />}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "200px" }}
+          transition={{ duration: 0.3 }}
+        >
+          <FeaturesSection />
+        </motion.div>
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton height="500px" />}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "200px" }}
+          transition={{ duration: 0.3 }}
+        >
+          <HowItWorksSection />
+        </motion.div>
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton height="400px" />}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "200px" }}
+          transition={{ duration: 0.3 }}
+        >
+          <BenefitsSection />
+        </motion.div>
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton height="500px" />}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "200px" }}
+          transition={{ duration: 0.3 }}
+        >
+          <section id="testimonials">
+            <TestimonialsSection />
+          </section>
+        </motion.div>
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton height="300px" />}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "100px" }}
+          transition={{ duration: 0.3 }}
+        >
+          <CTASection />
+        </motion.div>
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton height="200px" />}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "50px" }}
+          transition={{ duration: 0.3 }}
+        >
+          <Footer />
+        </motion.div>
+      </Suspense>
     </main>
   )
 }
