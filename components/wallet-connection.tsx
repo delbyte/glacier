@@ -152,7 +152,7 @@ export function WalletConnection({ className = "", showBalance = true }: WalletC
                       onClick={openConnectModal}
                       size="lg"
                     >
-                      Connect MetaMask
+                      Connect Core
                     </Button>
                   );
                 }

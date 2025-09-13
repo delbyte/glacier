@@ -96,7 +96,7 @@ export default function Dashboard() {
             <div>
               <h1 className="text-4xl font-bold mb-4">Dashboard</h1>
               <p className="text-xl text-gray-300">
-                Connect your MetaMask wallet to view your uploaded files
+                Connect your Core wallet to view your uploaded files
               </p>
             </div>
 
@@ -104,7 +104,7 @@ export default function Dashboard() {
               <CardHeader>
                 <CardTitle className="text-center">Wallet Connection Required</CardTitle>
                 <CardDescription className="text-center">
-                  Connect your wallet to access your dashboard and manage files
+                  Connect your Core wallet to access your dashboard and manage files
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
