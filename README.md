@@ -1,36 +1,130 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Glacier
 
-## Getting Started
+Glacier is a Next.js + Tailwind CSS UI for decentralized file storage, built around a custom design system (GlowCard) and tightly integrated wallet UX.
 
-First, run the development server:
+This README summarizes the project, setup steps, key files, and visual screenshots captured during development.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Project Overview
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Framework: Next.js (React) with TypeScript
+- Styling: Tailwind CSS + custom GlowCard component
+- Wallets: wagmi + RainbowKit (UI modals replaced by custom Glacier modals)
+- Popovers: Radix-style popovers (customized)
+- Purpose: Provide a polished interface for uploading files to Glacier storage network, claim GLCR tokens, and manage providers
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Key Features
 
-To learn more about Next.js, take a look at the following resources:
+- Branded GlowCard UI used across the app for visual consistency
+- Custom wallet modal replacing RainbowKit's default popup
+- Custom network/chain modal for switching Avalanche networks
+- Token claim modal for distributing test GLCR tokens on Avalanche Fuji
+- Mobile-optimized behavior applied conditionally to avoid PC performance impact
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Wallet / Account UI
 
-## Deploy on Vercel
+A custom wallet modal replaces RainbowKit's default account popup and displays the connected address, copy action, explorer link, and disconnect option.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+![Wallet modal - account view](./screenshots/Screenshot 2025-09-14 033034.png)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Token Claim Flow
+
+Users can claim free GLCR tokens from a custom token modal; the flow includes an initial claim view and a success state with confirmations.
+
+![Token claim - initial](./screenshots/Screenshot 2025-09-14 033057.png)
+
+![Token claim - success](./screenshots/Screenshot 2025-09-14 033119.png)
+
+---
+
+## Chain / Network Selection
+
+The app provides a branded network modal to switch between Avalanche Fuji (testnet) and Avalanche Mainnet, with clear labels for testnets and explorer links.
+
+![Chain modal - available networks](./screenshots/Screenshot 2025-09-14 033135.png)
+
+---
+
+## Pages & Layout
+
+Screenshots from various pages showing responsive layout and upload/provider pages:
+
+![Dashboard responsive layout](./screenshots/Screenshot 2025-09-14 033151.png)
+
+![Upload page - mobile view](./screenshots/Screenshot 2025-09-14 033327.png)
+
+![Provider page layout](./screenshots/Screenshot 2025-09-14 033349.png)
+
+---
+
+## Token Details & Explorer
+
+Token modal includes contract details and explorer access:
+
+![Token modal with explorer link](./screenshots/Screenshot 2025-09-14 034403.png)
+
+---
+
+## Misc UI States
+
+Additional UI states and interactions captured during development:
+
+![Misc UI states](./screenshots/Screenshot 2025-09-14 035322.png)
+
+---
+
+## Setup (Windows PowerShell)
+
+1. Install dependencies:
+
+   ```powershell
+   npm install
+   ```
+
+2. Start the dev server:
+
+   ```powershell
+   npm run dev
+   ```
+
+3. If you hit TypeScript chain typing errors when switching networks, ensure your `wagmi` chains in the app config include both Avalanche Fuji (`43113`) and Avalanche Mainnet (`43114`) and cast chain IDs where necessary.
+
+---
+
+## Important Files
+
+- `app/` - Next.js app routes and layout
+- `components/spotlight-card.tsx` - GlowCard main component (glow effect + mobile optimizations)
+- `components/custom-wallet-modal.tsx` - Custom wallet/account modal replacing RainbowKit's account modal
+- `components/custom-chain-modal.tsx` - Custom chain/network modal used to switch networks
+- `components/custom-token-modal.tsx` - Token management modal (view balance, claim tokens)
+- `components/wallet-connection.tsx` - Wallet connect UI (now uses custom modals)
+- `components/token-claim.tsx` - Token claim card (now opens `CustomTokenModal`)
+- `lib/` - Helper utilities (contracts, file utils)
+
+---
+
+## Notes & Gotchas
+
+- All mobile-only optimizations are gated behind device detection (touch + width checks) to avoid affecting desktop performance.
+- If TypeScript complains about chain literal types when using `switchChain`, cast to `any` or ensure your wagmi chain types include the union of required chain IDs.
+- The GLCR contract address in `components/custom-token-modal.tsx` is a placeholder; replace it with your deployed token contract for live testing.
+
+---
+
+## Next Steps (suggested)
+
+- Replace placeholder GLCR contract with deployed address
+- Add end-to-end tests for wallet and network flows
+- Add analytics for token claims and uploads
+
+---
+
+If you want more detailed captions or a different arrangement, tell me how you'd like them grouped and I'll update the README.
