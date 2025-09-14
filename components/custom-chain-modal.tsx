@@ -133,9 +133,6 @@ export function CustomChainModal({ children }: CustomChainModalProps) {
                                   Testnet
                                 </span>
                               )}
-                              {isCurrentChain && (
-                                <CheckCircle className="w-4 h-4 text-green-400" />
-                              )}
                             </div>
                             <p className="text-xs text-gray-400">{chain.description}</p>
                           </div>
@@ -146,7 +143,7 @@ export function CustomChainModal({ children }: CustomChainModalProps) {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleViewExplorer(chain)}
-                            className="text-gray-400 hover:text-white"
+                            className="text-gray-400 hover:text-black"
                           >
                             <ExternalLink className="w-4 h-4" />
                           </Button>
@@ -156,7 +153,7 @@ export function CustomChainModal({ children }: CustomChainModalProps) {
                               size="sm"
                               onClick={() => handleSwitchChain(chain)}
                               disabled={isPending}
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                              className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white"
                             >
                               {isPending ? "Switching..." : "Switch"}
                             </Button>

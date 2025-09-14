@@ -75,7 +75,7 @@ export function WalletConnection({ className = "", showBalance = true }: WalletC
                       <CustomChainModal>
                         <Button
                           variant="outline"
-                          className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                          className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
                         >
                           {chain.hasIcon && (
                             <div
@@ -93,6 +93,7 @@ export function WalletConnection({ className = "", showBalance = true }: WalletC
                                   alt={chain.name ?? "Chain icon"}
                                   src={chain.iconUrl}
                                   style={{ width: 12, height: 12 }}
+                                  className="transition duration-150 ease-in-out group-hover:brightness-0"
                                 />
                               )}
                             </div>
@@ -104,7 +105,7 @@ export function WalletConnection({ className = "", showBalance = true }: WalletC
                       <CustomWalletModal>
                         <Button
                           variant="outline"
-                          className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                          className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
                         >
                           {account.displayName}
                           {account.displayBalance ? ` (${account.displayBalance})` : ""}
@@ -178,7 +179,7 @@ export function WalletConnection({ className = "", showBalance = true }: WalletC
                     <CustomChainModal>
                       <Button
                         variant="outline"
-                        className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                        className="group border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
                       >
                         {chain.hasIcon && (
                           <div

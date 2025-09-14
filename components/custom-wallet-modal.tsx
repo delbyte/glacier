@@ -77,12 +77,12 @@ export function CustomWalletModal({ children }: CustomWalletModalProps) {
                         {`${address.slice(0, 8)}...${address.slice(-6)}`}
                       </span>
                     )}
-                  </div>
+                  </div>  
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleCopyAddress}
-                    className="h-8 w-8 p-0 hover:bg-gray-700"
+                    className="h-8 w-8 p-0 hover:bg-gray-700 hover:text-white"
                   >
                     {copied ? (
                       <CheckCircle className="h-4 w-4 text-green-400" />
@@ -109,7 +109,7 @@ export function CustomWalletModal({ children }: CustomWalletModalProps) {
                 <Button
                   variant="outline"
                   onClick={handleViewOnExplorer}
-                  className="w-full justify-start border-gray-600 text-gray-300 hover:bg-gray-700"
+                  className="w-full justify-start border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
                   View on Explorer
@@ -118,7 +118,7 @@ export function CustomWalletModal({ children }: CustomWalletModalProps) {
                 <Button
                   variant="outline"
                   onClick={handleDisconnect}
-                  className="w-full justify-start border-red-600 text-red-400 hover:bg-red-600/10"
+                  className="w-full justify-start border-red-600 text-red-400 hover:bg-red-600/10 hover:text-white"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Disconnect Wallet
