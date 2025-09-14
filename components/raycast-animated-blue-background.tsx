@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import { useViewportVisibility } from "@/lib/use-viewport-visibility";
 
 // Dynamically import UnicornScene with SSR disabled
 const UnicornScene = dynamic(() => import("unicornstudio-react"), {
@@ -44,7 +45,11 @@ export const useWindowSize = () => {
   return windowSize;
 };
 
-export const Component = () => {
+interface ComponentProps {
+  shouldAnimate?: boolean;
+}
+
+export const Component = ({ shouldAnimate = true }: ComponentProps) => {
   const { width, height } = useWindowSize();
   const [mounted, setMounted] = useState(false);
 
@@ -55,6 +60,11 @@ export const Component = () => {
   // Don't render until component is mounted and we have valid dimensions
   if (!mounted || width === 0 || height === 0) {
     return <div className="w-full h-screen bg-black" />;
+  }
+
+  // Only render the expensive UnicornScene when animation should be active
+  if (!shouldAnimate) {
+    return <div className="w-full h-screen bg-black opacity-60" />;
   }
 
   return (

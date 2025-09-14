@@ -1,6 +1,7 @@
 "use client"
 
 import { HeroSection } from "@/components/hero-section"
+import { AnimatedSection } from "@/components/animated-section"
 import { Suspense, lazy } from "react"
 import { motion } from "framer-motion"
 
@@ -25,75 +26,45 @@ export default function HomePage() {
   return (
     <main className="min-h-screen">
       {/* Hero loads immediately - it's above the fold */}
-      <HeroSection />
+      <AnimatedSection rootMargin="10% 0px">
+        <HeroSection />
+      </AnimatedSection>
       
-      {/* Lazy load everything else */}
+      {/* Lazy load everything else with smart animation control */}
       <Suspense fallback={<SectionSkeleton height="600px" />}>
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "200px" }}
-          transition={{ duration: 0.3 }}
-        >
+        <AnimatedSection delay={0.1}>
           <FeaturesSection />
-        </motion.div>
+        </AnimatedSection>
       </Suspense>
 
       <Suspense fallback={<SectionSkeleton height="500px" />}>
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "200px" }}
-          transition={{ duration: 0.3 }}
-        >
+        <AnimatedSection delay={0.2}>
           <HowItWorksSection />
-        </motion.div>
+        </AnimatedSection>
       </Suspense>
 
       <Suspense fallback={<SectionSkeleton height="400px" />}>
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "200px" }}
-          transition={{ duration: 0.3 }}
-        >
+        <AnimatedSection delay={0.3}>
           <BenefitsSection />
-        </motion.div>
+        </AnimatedSection>
       </Suspense>
 
       <Suspense fallback={<SectionSkeleton height="500px" />}>
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "200px" }}
-          transition={{ duration: 0.3 }}
-        >
-          <section id="testimonials">
-            <TestimonialsSection />
-          </section>
-        </motion.div>
+        <AnimatedSection id="testimonials" delay={0.4}>
+          <TestimonialsSection />
+        </AnimatedSection>
       </Suspense>
 
       <Suspense fallback={<SectionSkeleton height="300px" />}>
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "100px" }}
-          transition={{ duration: 0.3 }}
-        >
+        <AnimatedSection delay={0.5}>
           <CTASection />
-        </motion.div>
+        </AnimatedSection>
       </Suspense>
 
       <Suspense fallback={<SectionSkeleton height="200px" />}>
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "50px" }}
-          transition={{ duration: 0.3 }}
-        >
+        <AnimatedSection delay={0.6}>
           <Footer />
-        </motion.div>
+        </AnimatedSection>
       </Suspense>
     </main>
   )

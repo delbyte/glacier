@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { Component as RaycastAnimatedBackground } from "@/components/raycast-animated-blue-background"
+import { SmartBackground } from "@/components/smart-background"
 import { Mountain, Infinity, Network, MessageCircle, Globe } from "lucide-react"
 import Link from "next/link"
 
@@ -7,9 +7,7 @@ export function HeroSection() {
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden bg-black">
       {/* Animated Background */}
-      <div className="absolute inset-0 z-0 will-change-transform">
-        <RaycastAnimatedBackground />
-      </div>
+      <SmartBackground />
 
       {/* Header with Logo */}
       <header className="relative z-20 p-6">

@@ -27,25 +27,10 @@ const nextConfig = {
     // ],
     // Enable parallel builds
     cpus: os.cpus().length,
-    // Turbopack configuration
-    turbo: {
-      // Optimize loaders for Turbopack
-      loaders: {
-        '.svg': ['@svgr/webpack'],
-      },
-      resolveAlias: {
-        '@': './src',
-        '~': './src',
-      },
-      // Turbopack module rules
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
   },
+  
+  // Modern Turbopack configuration
+  turbopack: {},
   
   // Moved from experimental in Next.js 15
   serverExternalPackages: ['canvas', 'jsdom', 'cobe'],
