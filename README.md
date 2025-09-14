@@ -30,7 +30,7 @@ This README summarizes the project, setup steps, key files, and visual screensho
 
 A custom wallet modal replaces RainbowKit's default account popup and displays the connected address, copy action, explorer link, and disconnect option.
 
-![Wallet modal - account view](./screenshots/Screenshot 2025-09-14 033034.png)
+![Wallet modal - account view](./screenshots/Screenshot_2025-09-14_033034.png)
 
 ---
 
@@ -38,9 +38,9 @@ A custom wallet modal replaces RainbowKit's default account popup and displays t
 
 Users can claim free GLCR tokens from a custom token modal; the flow includes an initial claim view and a success state with confirmations.
 
-![Token claim - initial](./screenshots/Screenshot 2025-09-14 033057.png)
+![Token claim - initial](./screenshots/Screenshot_2025-09-14_033057.png)
 
-![Token claim - success](./screenshots/Screenshot 2025-09-14 033119.png)
+![Token claim - success](./screenshots/Screenshot_2025-09-14_033119.png)
 
 ---
 
@@ -48,7 +48,7 @@ Users can claim free GLCR tokens from a custom token modal; the flow includes an
 
 The app provides a branded network modal to switch between Avalanche Fuji (testnet) and Avalanche Mainnet, with clear labels for testnets and explorer links.
 
-![Chain modal - available networks](./screenshots/Screenshot 2025-09-14 033135.png)
+![Chain modal - available networks](./screenshots/Screenshot_2025-09-14_033135.png)
 
 ---
 
@@ -56,11 +56,11 @@ The app provides a branded network modal to switch between Avalanche Fuji (testn
 
 Screenshots from various pages showing responsive layout and upload/provider pages:
 
-![Dashboard responsive layout](./screenshots/Screenshot 2025-09-14 033151.png)
+![Dashboard responsive layout](./screenshots/Screenshot_2025-09-14_033151.png)
 
-![Upload page - mobile view](./screenshots/Screenshot 2025-09-14 033327.png)
+![Upload page - mobile view](./screenshots/Screenshot_2025-09-14_033327.png)
 
-![Provider page layout](./screenshots/Screenshot 2025-09-14 033349.png)
+![Provider page layout](./screenshots/Screenshot_2025-09-14_033349.png)
 
 ---
 
@@ -68,7 +68,7 @@ Screenshots from various pages showing responsive layout and upload/provider pag
 
 Token modal includes contract details and explorer access:
 
-![Token modal with explorer link](./screenshots/Screenshot 2025-09-14 034403.png)
+![Token modal with explorer link](./screenshots/Screenshot_2025-09-14_034403.png)
 
 ---
 
@@ -76,7 +76,7 @@ Token modal includes contract details and explorer access:
 
 Additional UI states and interactions captured during development:
 
-![Misc UI states](./screenshots/Screenshot 2025-09-14 035322.png)
+![Misc UI states](./screenshots/Screenshot_2025-09-14_035322.png)
 
 ---
 
