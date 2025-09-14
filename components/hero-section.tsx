@@ -64,13 +64,23 @@ export function HeroSection() {
                 Testimonials
               </Button>
             </a>
+
+            <Link href="/explain" className="inline-block">
+              <Button
+                size="sm"
+                className="text-sm px-4 py-2 h-auto bg-white/10 border-2 border-white/30 text-white hover:bg-white hover:text-black hover:border-white hover:scale-105 hover:shadow-lg hover:shadow-white/25 transition-all duration-300 delay-75 backdrop-blur-sm"
+              >
+                <Globe className="w-4 h-4 mr-2" />
+                Explainer
+              </Button>
+            </Link>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-8 pt-16 max-w-2xl mx-auto">
             <div className="text-center">
               <div className="text-3xl font-bold text-primary">100%</div>
-              <div className="text-sm text-gray-400">Trustless</div>
+              <div className="text-sm text-gray-400">Secure</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-primary">0</div>

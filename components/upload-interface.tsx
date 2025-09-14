@@ -248,9 +248,9 @@ export function UploadInterface() {
               <WalletConnection />
             </div>
             <Link href="/dashboard" className="order-1 sm:order-2">
-              <Button variant="outline" className="w-full sm:w-auto border-gray-600 text-gray-300 hover:bg-gray-800">
+              <Button variant="outline" className="w-full sm:w-auto border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">
                 View Dashboard
-              </Button>
+              </Button> 
             </Link>
           </div>
         </div>

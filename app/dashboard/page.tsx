@@ -262,18 +262,18 @@ export default function Dashboard() {
                             variant="outline"
                             size="sm"
                             onClick={() => downloadFile(file)}
-                            className="border-gray-600 text-gray-300 hover:bg-gray-700 text-xs sm:text-sm"
+                            className="group border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white text-xs sm:text-sm"
                           >
-                            <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <Download className="w-3 h-3 sm:w-4 sm:h-4 transition duration-150 ease-in-out group-hover:text-white" />
                             <span className="ml-1 sm:hidden">Download</span>
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => deleteFile(file.id)}
-                            className="border-red-600 text-red-400 hover:bg-red-600/10 text-xs sm:text-sm"
+                            className="group border-red-600 text-red-400 hover:bg-red-600/10 hover:text-white text-xs sm:text-sm"
                           >
-                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 transition duration-150 ease-in-out group-hover:text-white" />
                             <span className="ml-1 sm:hidden">Delete</span>
                           </Button>
                         </div>
