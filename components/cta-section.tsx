@@ -26,7 +26,7 @@ export function CTASection() {
               variant="outline"
               className="text-lg px-8 py-4 h-auto border-2 border-white/30 text-white bg-transparent hover:bg-white hover:text-black hover:border-white hover:scale-105 hover:shadow-lg hover:shadow-white/25 transition-all duration-300 delay-75"
             >
-              Start Earning as Provider
+              Start Earning as a Provider
             </Button>
           </Link>
         </div>

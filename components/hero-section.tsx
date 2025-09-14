@@ -38,7 +38,7 @@ export function HeroSection() {
             <Link href="/upload">
               <Button
                 size="lg"
-                className="text-lg px-8 py-4 h-auto font-semibold bg-white text-black hover:bg-gray-100 hover:scale-105 hover:shadow-lg hover:shadow-white/25 transition-all duration-300 delay-75"
+                className="text-lg px-8 py-4 h-auto font-semibold bg-white text-black hover:bg-gray-100 hover:scale-105 hover:shadow-lg hover:shadow-white/25 transition-all duration-300 delay-75 w-56"
               >
                 Start Storing Files
               </Button>
@@ -46,7 +46,7 @@ export function HeroSection() {
             <Link href="/provider">
               <Button
                 size="lg"
-                className="text-lg px-8 py-4 h-auto font-semibold bg-white/10 border-2 border-white/30 text-white hover:bg-white hover:text-black hover:border-white hover:scale-105 hover:shadow-lg hover:shadow-white/25 transition-all duration-300 delay-75 backdrop-blur-sm"
+                className="text-lg px-8 py-4 h-auto font-semibold bg-white/10 border-2 border-white/30 text-white hover:bg-white hover:text-black hover:border-white hover:scale-105 hover:shadow-lg hover:shadow-white/25 transition-all duration-300 delay-75 backdrop-blur-sm w-56"
               >
                 Become a Provider
               </Button>
@@ -54,11 +54,11 @@ export function HeroSection() {
           </div>
 
           {/* Additional Navigation */}
-          <div className="flex flex-wrap gap-3 justify-center items-center pt-6">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6">
             <a href="#testimonials" className="inline-block">
               <Button
                 size="sm"
-                className="text-sm px-4 py-2 h-auto bg-white/10 border-2 border-white/30 text-white hover:bg-white hover:text-black hover:border-white hover:scale-105 hover:shadow-lg hover:shadow-white/25 transition-all duration-300 delay-75 backdrop-blur-sm"
+                className="text-sm px-8 py-4 h-auto font-semibold bg-white/10 border-2 border-white/30 text-white hover:bg-white hover:text-black hover:border-white hover:scale-105 hover:shadow-lg hover:shadow-white/25 transition-all duration-300 delay-75 backdrop-blur-sm w-44"
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Testimonials
@@ -68,7 +68,7 @@ export function HeroSection() {
             <Link href="/explain" className="inline-block">
               <Button
                 size="sm"
-                className="text-sm px-4 py-2 h-auto bg-white/10 border-2 border-white/30 text-white hover:bg-white hover:text-black hover:border-white hover:scale-105 hover:shadow-lg hover:shadow-white/25 transition-all duration-300 delay-75 backdrop-blur-sm"
+                className="text-sm px-8 py-4 h-auto font-semibold bg-white/10 border-2 border-white/30 text-white hover:bg-white hover:text-black hover:border-white hover:scale-105 hover:shadow-lg hover:shadow-white/25 transition-all duration-300 delay-75 backdrop-blur-sm w-44"
               >
                 <Globe className="w-4 h-4 mr-2" />
                 Explainer
