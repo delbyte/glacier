@@ -5,6 +5,7 @@ export interface UserProfile {
   isProvider: boolean
   balance: number
   createdAt: string
+  walletAddress?: string // Ethereum wallet address for payments
 }
 
 export interface ReceivedFile {

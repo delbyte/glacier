@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowLeft, User, Upload, HardDrive, Wallet } from "lucide-react"
 import Link from "next/link"
 import { GlowCard } from "@/components/spotlight-card"
-import { getUserProfile, initializeUser } from "@/lib/user-manager"
+import { getUserProfile, initializeUser, updateUserProfile } from "@/lib/user-manager"
 import { useSocket } from "@/hooks/useSocket"
 import { useRouter } from "next/navigation"
 
@@ -52,8 +52,11 @@ export default function RegisterPage() {
     try {
       const isProvider = userType === 'provider'
       
-      // Initialize user profile
+      // Initialize user profile with wallet address
       initializeUser(username, isProvider)
+      if (address) {
+        updateUserProfile({ walletAddress: address })
+      }
 
       // Register with socket server
       if (isProvider) {

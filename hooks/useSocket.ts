@@ -44,7 +44,11 @@ export const useSocket = () => {
       const profile = getUserProfile()
       if (profile) {
         if (profile.isProvider) {
-          newSocket.emit('register-provider', { username: profile.username })
+          // Pass wallet address if stored for providers
+          newSocket.emit('register-provider', { 
+            username: profile.username,
+            walletAddress: profile.walletAddress 
+          })
         } else {
           newSocket.emit('register-user', { username: profile.username })
         }

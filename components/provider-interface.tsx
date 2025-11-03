@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowLeft, Wifi, WifiOff, CheckCircle, Wallet } from "lucide-react"
 import Link from "next/link"
 import { GlowCard } from "@/components/spotlight-card"
-import { getUserProfile, initializeUser, setProviderStatus } from "@/lib/user-manager"
+import { getUserProfile, initializeUser, setProviderStatus, updateUserProfile } from "@/lib/user-manager"
 import { useSocket } from "@/hooks/useSocket"
 
 export function ProviderInterface() {
@@ -77,12 +77,19 @@ export function ProviderInterface() {
       // Request download/notification permission
       await requestDownloadPermission()
 
-      // Initialize or update user profile
+      // Initialize or update user profile with wallet address
       const profile = getUserProfile()
       if (profile) {
         setProviderStatus(true)
+        // Update wallet address if changed
+        if (address && profile.walletAddress !== address) {
+          updateUserProfile({ walletAddress: address })
+        }
       } else {
-        initializeUser(username, true)
+        const newProfile = initializeUser(username, true)
+        if (address) {
+          updateUserProfile({ walletAddress: address })
+        }
       }
 
       // Register with socket server, pass wallet address for payments

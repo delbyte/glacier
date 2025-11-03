@@ -233,17 +233,24 @@ export function UploadInterface() {
 
       // Call smart contract to distribute payment
       console.log('💰 Calling smart contract...')
-      console.log('Provider addresses:', onlineProviders.map(p => p.id))
+      console.log('All providers:', JSON.stringify(onlineProviders, null, 2))
+      console.log('Provider IDs:', onlineProviders.map(p => p.id))
       console.log('Cost in AVAX:', uploadCostAVAX.toString())
       
       const providerAddresses = onlineProviders
-        .filter(p => p.id && p.id.startsWith('0x'))
+        .filter(p => {
+          const isValid = p.id && typeof p.id === 'string' && p.id.startsWith('0x')
+          console.log(`Provider ${p.username}: id=${p.id}, isValid=${isValid}`)
+          return isValid
+        })
         .map(p => p.id as `0x${string}`)
+      
+      console.log('Filtered provider addresses:', providerAddresses)
       
       if (providerAddresses.length === 0) {
         clearInterval(interval)
         setUploading(false)
-        alert('No valid provider addresses found. Providers must connect with Core/MetaMask wallet.')
+        alert(`No valid provider addresses found. Total providers: ${onlineProviders.length}. Providers must register with their wallet connected.\n\nProvider IDs: ${onlineProviders.map(p => p.id).join(', ')}`)
         return
       }
 
