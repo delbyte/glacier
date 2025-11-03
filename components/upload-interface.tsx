@@ -231,11 +231,10 @@ export function UploadInterface() {
       const encryptedData = await encryptFile(base64, password)
       setUploadProgress(50)
 
-      // Call smart contract to distribute payment
-      console.log('💰 Calling smart contract...')
+      // Try to call smart contract if providers have wallet addresses
+      console.log('💰 Checking for smart contract payment...')
       console.log('All providers:', JSON.stringify(onlineProviders, null, 2))
       console.log('Provider IDs:', onlineProviders.map(p => p.id))
-      console.log('Cost in AVAX:', uploadCostAVAX.toString())
       
       const providerAddresses = onlineProviders
         .filter(p => {
@@ -247,20 +246,19 @@ export function UploadInterface() {
       
       console.log('Filtered provider addresses:', providerAddresses)
       
-      if (providerAddresses.length === 0) {
-        clearInterval(interval)
-        setUploading(false)
-        alert(`No valid provider addresses found. Total providers: ${onlineProviders.length}. Providers must register with their wallet connected.\n\nProvider IDs: ${onlineProviders.map(p => p.id).join(', ')}`)
-        return
+      // Only call contract if we have valid addresses, otherwise skip payment
+      if (providerAddresses.length > 0) {
+        console.log('📝 Calling smart contract for payment...')
+        writeContract({
+          address: GLACIER_CONTRACT_ADDRESS,
+          abi: GLACIER_PAYMENTS_ABI,
+          functionName: 'uploadFile',
+          args: [providerAddresses, BigInt(file.size)],
+          value: uploadCostAVAX,
+        })
+      } else {
+        console.log('⚠️ No wallet addresses found - skipping smart contract payment, sending file anyway')
       }
-
-      writeContract({
-        address: GLACIER_CONTRACT_ADDRESS,
-        abi: GLACIER_PAYMENTS_ABI,
-        functionName: 'uploadFile',
-        args: [providerAddresses, BigInt(file.size)],
-        value: uploadCostAVAX,
-      })
 
       setUploadProgress(70)
 
