@@ -9,19 +9,29 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, Upload, FileText, CheckCircle } from "lucide-react"
+import { ArrowLeft, Upload, FileText, CheckCircle, Users, DollarSign } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { WalletConnection } from "@/components/wallet-connection"
 import { TokenClaim } from "@/components/token-claim"
 import { GlowCard } from "@/components/spotlight-card"
+import { useSocket } from "@/hooks/useSocket"
+import { 
+  getUserProfile, 
+  getBalance, 
+  deductBalance, 
+  calculateUploadCost, 
+  formatBalance,
+  formatFileSize,
+  initializeUser
+} from "@/lib/user-manager"
 
-interface Provider {
+interface NetworkType {
   id: string
   name: string
-  location: string
-  price: string
-  reputation: number
-  selected: boolean
+  description: string
+  uptime: number
+  rateMultiplier: number
 }
 
 interface UploadedFile {
@@ -35,52 +45,55 @@ interface UploadedFile {
 
 export function UploadInterface() {
   const { isConnected } = useAccount()
+  const { isConnected: socketConnected, providers: onlineProviders, sendFile, socket } = useSocket()
+  const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
   const [password, setPassword] = useState("")
-  const [providers, setProviders] = useState<Provider[]>([
-    { id: "1", name: "StorageNode Alpha", location: "US East", price: "0.001 GLCR/MB", reputation: 98, selected: true },
-    {
-      id: "2",
-      name: "DecentralStore Beta",
-      location: "EU West",
-      price: "0.0012 GLCR/MB",
-      reputation: 95,
-      selected: true,
-    },
-    {
-      id: "3",
-      name: "ChainStorage Gamma",
-      location: "Asia Pacific",
-      price: "0.0009 GLCR/MB",
-      reputation: 97,
-      selected: false,
-    },
-    { id: "4", name: "BlockVault Delta", location: "US West", price: "0.0011 GLCR/MB", reputation: 94, selected: true },
-  ])
+  const [selectedNetwork, setSelectedNetwork] = useState<'basic' | 'premium' | 'enterprise'>('basic')
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [dragActive, setDragActive] = useState(false)
+  const [balance, setBalance] = useState(0)
+  const [username, setUsername] = useState("")
+  const [uploadCost, setUploadCost] = useState(0)
+  const [showSuccess, setShowSuccess] = useState(false)
 
-  // Load files from localStorage
+  const networks: NetworkType[] = [
+    { id: 'basic', name: 'Basic Network', description: 'Standard reliability', uptime: 95, rateMultiplier: 1.0 },
+    { id: 'premium', name: 'Premium Network', description: 'High reliability', uptime: 98, rateMultiplier: 1.2 },
+    { id: 'enterprise', name: 'Enterprise Network', description: 'Maximum uptime', uptime: 99.9, rateMultiplier: 1.5 },
+  ]
+
+  // Load user profile and redirect if not registered
   useEffect(() => {
-    const savedFiles = localStorage.getItem('glacier-uploaded-files')
-    if (savedFiles) {
-      try {
-        const parsedFiles = JSON.parse(savedFiles)
-        setUploadedFiles(parsedFiles.map((file: any) => ({
-          ...file,
-          uploadedAt: new Date(file.uploadedAt)
-        })))
-      } catch (error) {
-        console.error('Error loading saved files:', error)
-      }
+    const profile = getUserProfile()
+    if (!profile) {
+      // Not registered, redirect to registration
+      router.push('/register')
+      return
     }
-  }, [])
+    
+    setUsername(profile.username)
+    setBalance(profile.balance)
 
-  const saveFilesToStorage = useCallback((files: UploadedFile[]) => {
-    localStorage.setItem('glacier-uploaded-files', JSON.stringify(files))
-  }, [])
+    // Refresh balance periodically
+    const interval = setInterval(() => {
+      setBalance(getBalance())
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [router])
+
+  // Calculate cost when file or network changes
+  useEffect(() => {
+    if (file) {
+      const cost = calculateUploadCost(file.size, selectedNetwork)
+      setUploadCost(cost)
+    } else {
+      setUploadCost(0)
+    }
+  }, [file, selectedNetwork])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -88,18 +101,92 @@ export function UploadInterface() {
     }
   }
 
-  const handleProviderToggle = (providerId: string) => {
-    setProviders((prev) => prev.map((p) => (p.id === providerId ? { ...p, selected: !p.selected } : p)))
+  const encryptFile = async (fileData: string, password: string): Promise<string> => {
+    try {
+      // Convert base64 to ArrayBuffer
+      const base64Data = fileData.split(',')[1] || fileData
+      const binaryString = atob(base64Data)
+      const bytes = new Uint8Array(binaryString.length)
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i)
+      }
+
+      // Derive key from password
+      const encoder = new TextEncoder()
+      const passwordBuffer = encoder.encode(password)
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        passwordBuffer,
+        { name: 'PBKDF2' },
+        false,
+        ['deriveBits', 'deriveKey']
+      )
+
+      // Use a fixed salt for simplicity (in production, generate random salt and include it)
+      const salt = encoder.encode('glacier-salt-v1')
+      const key = await crypto.subtle.deriveKey(
+        {
+          name: 'PBKDF2',
+          salt: salt,
+          iterations: 100000,
+          hash: 'SHA-256'
+        },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt']
+      )
+
+      // Generate IV
+      const iv = crypto.getRandomValues(new Uint8Array(12))
+
+      // Encrypt
+      const encryptedBuffer = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv: iv },
+        key,
+        bytes
+      )
+
+      // Combine IV + encrypted data
+      const encryptedBytes = new Uint8Array(encryptedBuffer)
+      const combined = new Uint8Array(iv.length + encryptedBytes.length)
+      combined.set(iv, 0)
+      combined.set(encryptedBytes, iv.length)
+
+      // Convert to base64
+      const encryptedBase64 = btoa(String.fromCharCode(...combined))
+      
+      // Return with data URL prefix
+      const mimeType = fileData.split(';')[0].split(':')[1] || 'application/octet-stream'
+      return `data:${mimeType};base64,${encryptedBase64}`
+    } catch (error) {
+      console.error('Encryption failed:', error)
+      throw new Error('Failed to encrypt file')
+    }
   }
 
   const handleUpload = async () => {
-    if (!file || !password || !isConnected) return
+    if (!file || !password) {
+      alert('Please select a file and enter a password')
+      return
+    }
+
+    if (onlineProviders.length === 0) {
+      alert('No providers online. Please wait for providers to connect.')
+      return
+    }
+
+    if (balance < uploadCost) {
+      alert(`Insufficient balance. You need ${uploadCost.toFixed(4)} GLCR but only have ${balance.toFixed(4)} GLCR`)
+      return
+    }
 
     setUploading(true)
     setUploadProgress(0)
+    setShowSuccess(false)
 
     try {
-      // Convert file to base64 for localStorage
+      // Convert file to base64
       const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader()
         reader.onload = () => resolve(reader.result as string)
@@ -110,32 +197,74 @@ export function UploadInterface() {
       // Simulate upload progress
       const interval = setInterval(() => {
         setUploadProgress((prev) => {
-          if (prev >= 100) {
+          if (prev >= 90) {
             clearInterval(interval)
-            setUploading(false)
-
-            // Save file to localStorage
-            const newFile: UploadedFile = {
-              id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-              name: file.name,
-              size: file.size,
-              type: file.type,
-              uploadedAt: new Date(),
-              data: base64,
-            }
-
-            const updatedFiles = [...uploadedFiles, newFile]
-            setUploadedFiles(updatedFiles)
-            saveFilesToStorage(updatedFiles)
-
-            return 100
+            return 90
           }
-          return prev + 10
+          return prev + 15
         })
-      }, 300)
+      }, 200)
+
+      // Encrypt file data (simple demo encryption)
+      const encryptedData = await encryptFile(base64, password)
+
+      // Deduct balance
+      try {
+        deductBalance(uploadCost)
+        setBalance(getBalance())
+      } catch (error) {
+        clearInterval(interval)
+        setUploading(false)
+        alert('Failed to deduct balance')
+        return
+      }
+
+      // Get original file extension
+      const fileExtension = file.name.split('.').pop() || 'bin'
+      
+      // Use socket ID as filename (will be set on server side)
+      const encryptedFileName = `encrypted_${Date.now()}.${fileExtension}`
+      
+      // Send file via socket to all providers
+      sendFile({
+        fileData: base64,
+        fileName: encryptedFileName, // Will be replaced with socket ID on server
+        fileSize: file.size,
+        fileType: file.type,
+        senderUsername: username,
+        encryptedData,
+        cost: uploadCost,
+        originalFileName: file.name,
+      })
+
+      // Complete progress
+      setUploadProgress(100)
+      
+      // Add to uploaded files list (in memory only, not localStorage to avoid quota issues)
+      const newFile: UploadedFile = {
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        uploadedAt: new Date(),
+        data: '', // Don't store file data
+      }
+
+      setUploadedFiles([...uploadedFiles, newFile])
+      setShowSuccess(true)
+      
+      // Reset form
+      setTimeout(() => {
+        setUploading(false)
+        setFile(null)
+        setPassword("")
+        setUploadProgress(0)
+      }, 2000)
+
     } catch (error) {
       console.error('Upload failed:', error)
       setUploading(false)
+      alert('Upload failed. Please try again.')
     }
   }
 
@@ -159,17 +288,6 @@ export function UploadInterface() {
       setFile(droppedFile)
     }
   }, [])
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-  }
-
-  const selectedProviders = providers.filter((p) => p.selected)
-  const totalCost = selectedProviders.length * 0.001 * (file ? file.size / (1024 * 1024) : 0)
 
   if (!isConnected) {
     return (
@@ -336,40 +454,71 @@ export function UploadInterface() {
               </div>
             </GlowCard>
 
-            {/* Provider Selection */}
+            {/* Network Selection */}
             <GlowCard glowColor="deep" customSize={true} className="p-6 sm:p-4">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold">Select Storage Providers</h3>
-                  <p className="text-gray-400">Choose which providers will store parts of your file</p>
+                  <h3 className="text-xl font-bold flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    Select Provider Network
+                  </h3>
+                  <p className="text-gray-400">Choose your storage reliability tier</p>
                 </div>
 
-                <div className="space-y-4">
-                  {providers.map((provider) => (
-                    <div key={provider.id} className="flex items-center space-x-3 p-3 border border-gray-700 rounded-lg bg-gray-800/50 hover:bg-gray-800/80 transition-all duration-200 hover:transform hover:scale-[1.01] cursor-pointer">
-                      <Checkbox
-                        checked={provider.selected}
-                        onCheckedChange={() => handleProviderToggle(provider.id)}
-                        className="border-gray-600"
-                      />
-                      <div className="flex-1" onClick={() => handleProviderToggle(provider.id)}>
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium text-white">{provider.name}</h4>
-                          <span className="text-sm text-gray-400">{provider.price}</span>
+                {/* Online Providers Count */}
+                <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                  <span className="text-sm text-gray-400">Online Providers:</span>
+                  <span className="text-lg font-bold text-green-400">{onlineProviders.length}</span>
+                </div>
+
+                {onlineProviders.length === 0 && (
+                  <Alert className="border-yellow-500/50 bg-yellow-500/10">
+                    <AlertDescription className="text-yellow-200 text-sm">
+                      No providers online. Waiting for providers to connect...
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Network Tiers */}
+                <div className="space-y-3">
+                  {networks.map((network) => (
+                    <div
+                      key={network.id}
+                      onClick={() => setSelectedNetwork(network.id as 'basic' | 'premium' | 'enterprise')}
+                      className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:transform hover:scale-[1.01] ${
+                        selectedNetwork === network.id
+                          ? 'border-blue-500 bg-blue-500/10'
+                          : 'border-gray-700 bg-gray-800/50 hover:bg-gray-800/80'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium text-white">{network.name}</h4>
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-green-400" />
+                          <span className="text-sm text-gray-400">
+                            {(0.001 * network.rateMultiplier).toFixed(4)} GLCR/MB
+                          </span>
                         </div>
-                        <div className="flex items-center space-x-4 text-sm text-gray-400">
-                          <span>{provider.location}</span>
-                          <span>Reputation: {provider.reputation}%</span>
-                        </div>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">{network.description}</span>
+                        <span className="text-green-400 font-medium">{network.uptime}% uptime</span>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {selectedProviders.length < 2 && (
-                  <Alert className="mt-4 border-yellow-500/50 bg-yellow-500/10">
-                    <AlertDescription className="text-yellow-200">
-                      Select at least 2 providers for redundancy and security.
+                {/* Cost Display */}
+                {file && (
+                  <Alert className="border-blue-500/50 bg-blue-500/10">
+                    <AlertDescription className="text-blue-200">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">Estimated Cost:</span>
+                        <span className="text-lg font-bold">{uploadCost.toFixed(6)} GLCR</span>
+                      </div>
+                      <p className="text-xs text-blue-300 mt-1">
+                        File will be distributed to all {onlineProviders.length} online provider{onlineProviders.length !== 1 ? 's' : ''}
+                      </p>
                     </AlertDescription>
                   </Alert>
                 )}
@@ -381,17 +530,29 @@ export function UploadInterface() {
               <GlowCard glowColor="arctic" customSize={true} className="p-6 sm:p-4">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <h3 className="text-xl font-bold">Uploading...</h3>
-                    <p className="text-gray-400">Encrypting, chunking, and distributing your file</p>
+                    <h3 className="text-xl font-bold">
+                      {uploadProgress === 100 && showSuccess ? "Upload Complete!" : "Uploading..."}
+                    </h3>
+                    <p className="text-gray-400">
+                      {uploadProgress === 100 && showSuccess 
+                        ? `Sent to ${onlineProviders.length} provider${onlineProviders.length !== 1 ? 's' : ''}`
+                        : "Encrypting and distributing your file"
+                      }
+                    </p>
                   </div>
 
                   <Progress value={uploadProgress} className="w-full" />
                   <p className="text-sm text-gray-400">
-                    {uploadProgress < 30 && "Encrypting file..."}
-                    {uploadProgress >= 30 && uploadProgress < 60 && "Splitting into chunks..."}
-                    {uploadProgress >= 60 && uploadProgress < 90 && "Uploading to providers..."}
-                    {uploadProgress >= 90 && "Creating smart contracts..."}
-                    {uploadProgress === 100 && "Upload complete!"}
+                    {uploadProgress < 30 && "Encrypting file with password..."}
+                    {uploadProgress >= 30 && uploadProgress < 60 && "Preparing file data..."}
+                    {uploadProgress >= 60 && uploadProgress < 90 && "Sending to providers..."}
+                    {uploadProgress >= 90 && uploadProgress < 100 && "Finalizing upload..."}
+                    {uploadProgress === 100 && showSuccess && (
+                      <span className="text-green-400 font-medium flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4" />
+                        Successfully uploaded!
+                      </span>
+                    )}
                   </p>
                 </div>
               </GlowCard>
@@ -431,8 +592,29 @@ export function UploadInterface() {
 
           {/* Sidebar */}
           <div className="space-y-4 sm:space-y-6 order-2">
-            <TokenClaim />
+            {/* Balance Card */}
+            <GlowCard glowColor="glacier" customSize={true} className="p-6 sm:p-4">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-green-400" />
+                  <h3 className="text-sm font-bold">Your Balance</h3>
+                </div>
+                <div className="text-3xl font-bold text-green-400">
+                  {formatBalance(balance)}
+                </div>
+                <p className="text-xs text-gray-400">
+                  {!username ? (
+                    <Link href="/provider" className="text-blue-400 hover:text-blue-300">
+                      Register to get started
+                    </Link>
+                  ) : (
+                    `Logged in as ${username}`
+                  )}
+                </p>
+              </div>
+            </GlowCard>
 
+            {/* Upload Summary */}
             <GlowCard glowColor="ice" customSize={true} className="p-6 sm:p-4">
               <div className="space-y-4">
                 <h3 className="text-xl font-bold">Upload Summary</h3>
@@ -440,25 +622,36 @@ export function UploadInterface() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>File Size:</span>
-                    <span>{file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB` : "—"}</span>
+                    <span>{file ? formatFileSize(file.size) : "—"}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>Providers:</span>
-                    <span>{selectedProviders.length}</span>
+                    <span>Online Providers:</span>
+                    <span className="text-green-400 font-medium">{onlineProviders.length}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Selected Network:</span>
+                    <span className="capitalize">{selectedNetwork}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Redundancy:</span>
-                    <span>{selectedProviders.length > 1 ? "High" : "Low"}</span>
+                    <span>{onlineProviders.length > 1 ? "High" : onlineProviders.length === 1 ? "Medium" : "None"}</span>
                   </div>
                   <div className="flex justify-between text-sm font-medium border-t border-gray-700 pt-2">
-                    <span>Total Cost:</span>
-                    <span>{totalCost.toFixed(4)} GLCR</span>
+                    <span>Cost:</span>
+                    <span className={uploadCost > balance ? 'text-red-400' : 'text-green-400'}>
+                      {uploadCost.toFixed(6)} GLCR
+                    </span>
                   </div>
+                  {uploadCost > balance && file && (
+                    <p className="text-xs text-red-400">
+                      Insufficient balance
+                    </p>
+                  )}
                 </div>
 
                 <Button
                   onClick={handleUpload}
-                  disabled={!file || !password || selectedProviders.length < 1 || uploading}
+                  disabled={!file || !password || onlineProviders.length === 0 || uploading || balance < uploadCost || !username}
                   className="w-full transition-all duration-200 hover:transform hover:scale-[1.02] disabled:hover:scale-100"
                   size="lg"
                 >
@@ -467,6 +660,8 @@ export function UploadInterface() {
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       Uploading...
                     </span>
+                  ) : !username ? (
+                    "Register First"
                   ) : (
                     "Upload File"
                   )}
