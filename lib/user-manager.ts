@@ -18,10 +18,22 @@ export interface ReceivedFile {
   // Note: fileData not stored to avoid localStorage quota issues
 }
 
+export interface UploadedFile {
+  id: string
+  fileName: string
+  fileSize: number
+  fileType: string
+  uploadedAt: string
+  providerCount: number
+  cost: number
+  fileData: string // Store encrypted file data
+}
+
 const STORAGE_KEYS = {
   USER_PROFILE: 'glacier-user-profile',
   BALANCE: 'glacier-balance',
   RECEIVED_FILES: 'glacier-received-files',
+  UPLOADED_FILES: 'glacier-uploaded-files',
   IS_PROVIDER: 'glacier-is-provider',
 }
 
@@ -111,6 +123,19 @@ export const saveReceivedFile = (file: ReceivedFile): void => {
 // Get all received files (for providers)
 export const getReceivedFiles = (): ReceivedFile[] => {
   const files = localStorage.getItem(STORAGE_KEYS.RECEIVED_FILES)
+  return files ? JSON.parse(files) : []
+}
+
+// Save uploaded file (for users who upload)
+export const saveUploadedFile = (file: UploadedFile): void => {
+  const files = getUploadedFiles()
+  files.unshift(file) // Add to beginning
+  localStorage.setItem(STORAGE_KEYS.UPLOADED_FILES, JSON.stringify(files))
+}
+
+// Get all uploaded files (for users who upload)
+export const getUploadedFiles = (): UploadedFile[] => {
+  const files = localStorage.getItem(STORAGE_KEYS.UPLOADED_FILES)
   return files ? JSON.parse(files) : []
 }
 

@@ -1,93 +1,69 @@
-export interface StorageDeal {
-  id: string
-  renterAddress: string
-  providerAddress: string
-  chunkHash: string
-  price: string
-  duration: number
-  status: "active" | "completed" | "failed"
+import GlacierPaymentsABI from './contracts/GlacierPayments.json'
+
+// Contract address from .env
+export const GLACIER_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_GLACIER_CONTRACT_ADDRESS as `0x${string}`
+export const FUJI_CHAIN_ID = 43113
+
+// Contract ABI
+export const GLACIER_PAYMENTS_ABI = GlacierPaymentsABI.abi
+
+/**
+ * Calculate upload cost for a file
+ * Formula: (fileSize / 1MB) * 0.001 GLCR * 0.1 AVAX/GLCR
+ * Conversion: 10 GLCR = 1 AVAX
+ */
+export function calculateUploadCostInAVAX(fileSizeBytes: number): bigint {
+  // (fileSizeBytes / 1,048,576) * 0.001 GLCR * 0.1 AVAX/GLCR
+  // Simplified: fileSizeBytes * 100000000000 / 1048576 (in wei)
+  const costInWei = (BigInt(fileSizeBytes) * BigInt(100000000000)) / BigInt(1048576)
+  return costInWei
 }
 
-export interface Provider {
-  address: string
-  url: string
-  stakeAmount: string
-  reputation: number
-  activeDeals: number
+/**
+ * Calculate upload cost in GLCR for display
+ * 1 AVAX = 10 GLCR
+ */
+export function calculateUploadCostInGLCR(fileSizeBytes: number): number {
+  const fileSizeMB = fileSizeBytes / (1024 * 1024)
+  return fileSizeMB * 0.001 // 0.001 GLCR per MB
 }
 
-export class GlacierContracts {
-  private rpcUrl: string
-
-  constructor(rpcUrl?: string) {
-    this.rpcUrl = rpcUrl || process.env.FUJI_RPC_URL || "https://api.avax-test.network/ext/bc/C/rpc"
-  }
-
-  // Provider Registry Contract Methods
-  async registerProvider(url: string, stakeAmount: string): Promise<string> {
-    // Placeholder for provider registration
-    // In real implementation, this would call ProviderRegistry.sol
-    console.log("Registering provider:", { url, stakeAmount })
-    return "mock-transaction-hash"
-  }
-
-  async getProviders(): Promise<Provider[]> {
-    // Placeholder for fetching providers
-    // In real implementation, this would query the ProviderRegistry contract
-    return [
-      {
-        address: "0x1234...5678",
-        url: "http://provider1.example.com:3000",
-        stakeAmount: "1000",
-        reputation: 98,
-        activeDeals: 15,
-      },
-    ]
-  }
-
-  // Deal Manager Contract Methods
-  async createDeal(providerAddress: string, chunkHash: string, price: string, duration: number): Promise<string> {
-    // Placeholder for deal creation
-    // In real implementation, this would call DealManager.sol
-    console.log("Creating deal:", { providerAddress, chunkHash, price, duration })
-    return "mock-deal-id"
-  }
-
-  async getDeals(address: string): Promise<StorageDeal[]> {
-    // Placeholder for fetching deals
-    // In real implementation, this would query the DealManager contract
-    return []
-  }
-
-  // Challenge Manager Contract Methods
-  async initiateChallenge(dealId: string): Promise<string> {
-    // Placeholder for challenge initiation
-    // In real implementation, this would call ChallengeManager.sol
-    console.log("Initiating challenge for deal:", dealId)
-    return "mock-challenge-id"
-  }
-
-  async submitProof(dealId: string, proof: string): Promise<string> {
-    // Placeholder for proof submission
-    // In real implementation, this would call ChallengeManager.sol
-    console.log("Submitting proof:", { dealId, proof })
-    return "mock-proof-hash"
-  }
-
-  // Token Contract Methods
-  async approveTokens(spender: string, amount: string): Promise<string> {
-    // Placeholder for token approval
-    // In real implementation, this would call GlacierToken.sol
-    console.log("Approving tokens:", { spender, amount })
-    return "mock-approval-hash"
-  }
-
-  async getTokenBalance(address: string): Promise<string> {
-    // Placeholder for token balance
-    // In real implementation, this would query GlacierToken.sol
-    return "1000.0"
-  }
+/**
+ * Convert AVAX to GLCR for display
+ * 1 AVAX = 10 GLCR
+ */
+export function avaxToGLCR(avaxAmount: string): number {
+  return parseFloat(avaxAmount) * 10
 }
 
-// Export singleton instance
-export const glacierContracts = new GlacierContracts()
+/**
+ * Convert GLCR to AVAX
+ * 10 GLCR = 1 AVAX
+ */
+export function glcrToAVAX(glcrAmount: number): string {
+  return (glcrAmount / 10).toFixed(4)
+}
+
+/**
+ * Format AVAX balance for display
+ */
+export function formatAVAX(avaxAmount: string | bigint): string {
+  if (typeof avaxAmount === 'bigint') {
+    const eth = Number(avaxAmount) / 1e18
+    return eth.toFixed(4) + ' AVAX'
+  }
+  return parseFloat(avaxAmount).toFixed(4) + ' AVAX'
+}
+
+/**
+ * Format GLCR balance for display
+ */
+export function formatGLCR(avaxAmount: string | bigint): string {
+  if (typeof avaxAmount === 'bigint') {
+    const eth = Number(avaxAmount) / 1e18
+    const glcr = eth * 10
+    return glcr.toFixed(4) + ' GLCR'
+  }
+  const glcr = parseFloat(avaxAmount) * 10
+  return glcr.toFixed(4) + ' GLCR'
+}

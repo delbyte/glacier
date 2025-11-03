@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState, useCallback, useEffect } from "react"
-import { useAccount } from "wagmi"
+import { useAccount, useBalance, useWriteContract, useWaitForTransactionReceipt } from "wagmi"
+import { parseEther } from "viem"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -18,13 +19,18 @@ import { GlowCard } from "@/components/spotlight-card"
 import { useSocket } from "@/hooks/useSocket"
 import { 
   getUserProfile, 
-  getBalance, 
-  deductBalance, 
-  calculateUploadCost, 
-  formatBalance,
   formatFileSize,
-  initializeUser
+  saveUploadedFile,
+  type UploadedFile as StoredUploadedFile
 } from "@/lib/user-manager"
+import {
+  GLACIER_CONTRACT_ADDRESS,
+  GLACIER_PAYMENTS_ABI,
+  calculateUploadCostInAVAX,
+  calculateUploadCostInGLCR,
+  formatAVAX,
+  formatGLCR
+} from "@/lib/glacier-contracts"
 
 interface NetworkType {
   id: string
@@ -44,7 +50,10 @@ interface UploadedFile {
 }
 
 export function UploadInterface() {
-  const { isConnected } = useAccount()
+  const { isConnected, address } = useAccount()
+  const { data: balanceData } = useBalance({ address })
+  const { writeContract, data: hash, isPending: isContractPending } = useWriteContract()
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash })
   const { isConnected: socketConnected, providers: onlineProviders, sendFile, socket } = useSocket()
   const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
@@ -54,9 +63,9 @@ export function UploadInterface() {
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [dragActive, setDragActive] = useState(false)
-  const [balance, setBalance] = useState(0)
   const [username, setUsername] = useState("")
-  const [uploadCost, setUploadCost] = useState(0)
+  const [uploadCostAVAX, setUploadCostAVAX] = useState<bigint>(BigInt(0))
+  const [uploadCostGLCR, setUploadCostGLCR] = useState<number>(0)
   const [showSuccess, setShowSuccess] = useState(false)
   const [mounted, setMounted] = useState(false)
 
@@ -77,23 +86,18 @@ export function UploadInterface() {
     }
     
     setUsername(profile.username)
-    setBalance(profile.balance)
-
-    // Refresh balance periodically
-    const interval = setInterval(() => {
-      setBalance(getBalance())
-    }, 2000)
-
-    return () => clearInterval(interval)
   }, [router])
 
   // Calculate cost when file or network changes
   useEffect(() => {
     if (file) {
-      const cost = calculateUploadCost(file.size, selectedNetwork)
-      setUploadCost(cost)
+      const costAVAX = calculateUploadCostInAVAX(file.size)
+      const costGLCR = calculateUploadCostInGLCR(file.size)
+      setUploadCostAVAX(costAVAX)
+      setUploadCostGLCR(costGLCR)
     } else {
-      setUploadCost(0)
+      setUploadCostAVAX(BigInt(0))
+      setUploadCostGLCR(0)
     }
   }, [file, selectedNetwork])
 
@@ -179,13 +183,22 @@ export function UploadInterface() {
       return
     }
 
+    if (!isConnected || !address) {
+      alert('Please connect your wallet first')
+      return
+    }
+
     if (onlineProviders.length === 0) {
       alert('No providers online. Please wait for providers to connect.')
       return
     }
 
-    if (balance < uploadCost) {
-      alert(`Insufficient balance. You need ${uploadCost.toFixed(4)} GLCR but only have ${balance.toFixed(4)} GLCR`)
+    // Check if user has enough AVAX
+    const walletBalanceWei = balanceData?.value || BigInt(0)
+    if (walletBalanceWei < uploadCostAVAX) {
+      const requiredAVAX = Number(uploadCostAVAX) / 1e18
+      const currentAVAX = Number(walletBalanceWei) / 1e18
+      alert(`Insufficient balance. You need ${requiredAVAX.toFixed(4)} AVAX but only have ${currentAVAX.toFixed(4)} AVAX`)
       return
     }
 
@@ -205,27 +218,44 @@ export function UploadInterface() {
       // Simulate upload progress
       const interval = setInterval(() => {
         setUploadProgress((prev) => {
-          if (prev >= 90) {
+          if (prev >= 30) {
             clearInterval(interval)
-            return 90
+            return 30
           }
-          return prev + 15
+          return prev + 10
         })
       }, 200)
 
-      // Encrypt file data (simple demo encryption)
+      // Encrypt file data
+      console.log('🔐 Encrypting file...')
       const encryptedData = await encryptFile(base64, password)
+      setUploadProgress(50)
 
-      // Deduct balance
-      try {
-        deductBalance(uploadCost)
-        setBalance(getBalance())
-      } catch (error) {
+      // Call smart contract to distribute payment
+      console.log('💰 Calling smart contract...')
+      console.log('Provider addresses:', onlineProviders.map(p => p.id))
+      console.log('Cost in AVAX:', uploadCostAVAX.toString())
+      
+      const providerAddresses = onlineProviders
+        .filter(p => p.id && p.id.startsWith('0x'))
+        .map(p => p.id as `0x${string}`)
+      
+      if (providerAddresses.length === 0) {
         clearInterval(interval)
         setUploading(false)
-        alert('Failed to deduct balance')
+        alert('No valid provider addresses found. Providers must connect with Core/MetaMask wallet.')
         return
       }
+
+      writeContract({
+        address: GLACIER_CONTRACT_ADDRESS,
+        abi: GLACIER_PAYMENTS_ABI,
+        functionName: 'uploadFile',
+        args: [providerAddresses, BigInt(file.size)],
+        value: uploadCostAVAX,
+      })
+
+      setUploadProgress(70)
 
       // Get original file extension
       const fileExtension = file.name.split('.').pop() || 'bin'
@@ -234,6 +264,7 @@ export function UploadInterface() {
       const encryptedFileName = `encrypted_${Date.now()}.${fileExtension}`
       
       // Send file via socket to all providers
+      console.log('📡 Sending file via socket...')
       sendFile({
         fileData: base64,
         fileName: encryptedFileName, // Will be replaced with socket ID on server
@@ -241,21 +272,37 @@ export function UploadInterface() {
         fileType: file.type,
         senderUsername: username,
         encryptedData,
-        cost: uploadCost,
+        cost: uploadCostGLCR,
         originalFileName: file.name,
       })
 
       // Complete progress
-      setUploadProgress(100)
+      setUploadProgress(90)
+      console.log('✅ Upload complete!')
+      setShowSuccess(true)
       
-      // Add to uploaded files list (in memory only, not localStorage to avoid quota issues)
-      const newFile: UploadedFile = {
+      // Save uploaded file to localStorage with encrypted data
+      const uploadedFile: StoredUploadedFile = {
         id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        uploadedAt: new Date().toISOString(),
+        providerCount: onlineProviders.length,
+        cost: uploadCostGLCR,
+        fileData: encryptedData, // Store encrypted data so user can download later
+      }
+      
+      saveUploadedFile(uploadedFile)
+      
+      // Add to in-memory list for display
+      const newFile: UploadedFile = {
+        id: uploadedFile.id,
         name: file.name,
         size: file.size,
         type: file.type,
         uploadedAt: new Date(),
-        data: '', // Don't store file data
+        data: encryptedData,
       }
 
       setUploadedFiles([...uploadedFiles, newFile])
@@ -527,7 +574,10 @@ export function UploadInterface() {
                     <AlertDescription className="text-blue-200">
                       <div className="flex items-center justify-between">
                         <span className="font-medium">Estimated Cost:</span>
-                        <span className="text-lg font-bold">{uploadCost.toFixed(6)} GLCR</span>
+                        <div className="text-right">
+                          <div className="text-lg font-bold">{formatAVAX(uploadCostAVAX)}</div>
+                          <div className="text-xs">≈ {uploadCostGLCR.toFixed(4)} GLCR</div>
+                        </div>
                       </div>
                       <p className="text-xs text-blue-300 mt-1">
                         File will be distributed to all {onlineProviders.length} online provider{onlineProviders.length !== 1 ? 's' : ''}
@@ -610,10 +660,13 @@ export function UploadInterface() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <DollarSign className="w-5 h-5 text-green-400" />
-                  <h3 className="text-sm font-bold">Your Balance</h3>
+                  <h3 className="text-sm font-bold">Your Wallet Balance</h3>
                 </div>
                 <div className="text-3xl font-bold text-green-400">
-                  {formatBalance(balance)}
+                  {balanceData ? formatAVAX(balanceData.value) : '0.0000 AVAX'}
+                </div>
+                <div className="text-sm text-gray-400">
+                  ≈ {balanceData ? formatGLCR(balanceData.value) : '0.0000 GLCR'}
                 </div>
                 <p className="text-xs text-gray-400">
                   {!username ? (
@@ -651,28 +704,33 @@ export function UploadInterface() {
                   </div>
                   <div className="flex justify-between text-sm font-medium border-t border-gray-700 pt-2">
                     <span>Cost:</span>
-                    <span className={uploadCost > balance ? 'text-red-400' : 'text-green-400'}>
-                      {uploadCost.toFixed(6)} GLCR
-                    </span>
+                    <div className="text-right">
+                      <div className={uploadCostAVAX > (balanceData?.value || BigInt(0)) ? 'text-red-400' : 'text-green-400'}>
+                        {formatAVAX(uploadCostAVAX)}
+                      </div>
+                      <div className="text-xs text-gray-400">≈ {uploadCostGLCR.toFixed(4)} GLCR</div>
+                    </div>
                   </div>
-                  {uploadCost > balance && file && (
+                  {uploadCostAVAX > (balanceData?.value || BigInt(0)) && file && (
                     <p className="text-xs text-red-400">
-                      Insufficient balance
+                      Insufficient AVAX balance
                     </p>
                   )}
                 </div>
 
                 <Button
                   onClick={handleUpload}
-                  disabled={!file || !password || onlineProviders.length === 0 || uploading || balance < uploadCost || !username}
+                  disabled={!file || !password || !isConnected || onlineProviders.length === 0 || uploading || uploadCostAVAX > (balanceData?.value || BigInt(0)) || !username}
                   className="w-full transition-all duration-200 hover:transform hover:scale-[1.02] disabled:hover:scale-100"
                   size="lg"
                 >
                   {uploading ? (
                     <span className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Uploading...
+                      {isContractPending || isConfirming ? 'Confirming transaction...' : 'Uploading...'}
                     </span>
+                  ) : !isConnected ? (
+                    "Connect Wallet First"
                   ) : !username ? (
                     "Register First"
                   ) : (

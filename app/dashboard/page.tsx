@@ -14,11 +14,13 @@ import { TokenClaim } from "@/components/token-claim"
 
 interface UploadedFile {
   id: string
-  name: string
-  size: number
-  type: string
-  uploadedAt: Date
-  data: string
+  fileName: string
+  fileSize: number
+  fileType: string
+  uploadedAt: string
+  providerCount: number
+  cost: number
+  fileData: string
 }
 
 export default function Dashboard() {
@@ -27,16 +29,16 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
 
+  const [mounted, setMounted] = useState(false)
+
   // Load files from localStorage
   useEffect(() => {
+    setMounted(true)
     const savedFiles = localStorage.getItem('glacier-uploaded-files')
     if (savedFiles) {
       try {
         const parsedFiles = JSON.parse(savedFiles)
-        setFiles(parsedFiles.map((file: any) => ({
-          ...file,
-          uploadedAt: new Date(file.uploadedAt)
-        })))
+        setFiles(parsedFiles)
       } catch (error) {
         console.error('Error loading saved files:', error)
       }
@@ -66,18 +68,18 @@ export default function Dashboard() {
   }
 
   const filteredFiles = files.filter(file => {
-    const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesFilter = filterType === 'all' || getFileType(file.name) === filterType
+    const matchesSearch = file.fileName.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesFilter = filterType === 'all' || getFileType(file.fileName) === filterType
     return matchesSearch && matchesFilter
   })
 
-  const totalStorage = files.reduce((sum, file) => sum + file.size, 0)
-  const fileTypes = [...new Set(files.map(file => getFileType(file.name)))]
+  const totalStorage = files.reduce((sum, file) => sum + file.fileSize, 0)
+  const fileTypes = [...new Set(files.map(file => getFileType(file.fileName)))]
 
   const downloadFile = (file: UploadedFile) => {
     const link = document.createElement('a')
-    link.href = file.data
-    link.download = file.name
+    link.href = file.fileData
+    link.download = file.fileName
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -87,6 +89,11 @@ export default function Dashboard() {
     const updatedFiles = files.filter(file => file.id !== fileId)
     setFiles(updatedFiles)
     localStorage.setItem('glacier-uploaded-files', JSON.stringify(updatedFiles))
+  }
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return null
   }
 
   if (!isConnected) {
@@ -246,13 +253,15 @@ export default function Dashboard() {
                             <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-white text-sm sm:text-base truncate">{file.name}</h4>
+                            <h4 className="font-medium text-white text-sm sm:text-base truncate">{file.fileName}</h4>
                             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-gray-400">
-                              <span>{formatFileSize(file.size)}</span>
+                              <span>{formatFileSize(file.fileSize)}</span>
                               <span className="hidden sm:inline">•</span>
-                              <span>{formatDate(file.uploadedAt)}</span>
+                              <span>{new Date(file.uploadedAt).toLocaleDateString()} {new Date(file.uploadedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                               <span className="hidden sm:inline">•</span>
-                              <span className="capitalize">{getFileType(file.name)}</span>
+                              <span className="text-green-400">{file.providerCount} provider{file.providerCount !== 1 ? 's' : ''}</span>
+                              <span className="hidden sm:inline">•</span>
+                              <span className="text-blue-400">{file.cost.toFixed(6)} GLCR</span>
                             </div>
                           </div>
                         </div>

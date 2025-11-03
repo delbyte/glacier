@@ -1,24 +1,26 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useAccount } from "wagmi"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, Wifi, WifiOff, CheckCircle } from "lucide-react"
+import { ArrowLeft, Wifi, WifiOff, CheckCircle, Wallet } from "lucide-react"
 import Link from "next/link"
 import { GlowCard } from "@/components/spotlight-card"
 import { getUserProfile, initializeUser, setProviderStatus } from "@/lib/user-manager"
 import { useSocket } from "@/hooks/useSocket"
 
 export function ProviderInterface() {
+  const { address, isConnected: walletConnected } = useAccount()
   const [username, setUsername] = useState("")
   const [isRegistered, setIsRegistered] = useState(false)
   const [registering, setRegistering] = useState(false)
   const [downloadPermission, setDownloadPermission] = useState<string>("default")
   const [mounted, setMounted] = useState(false)
-  const { isConnected, registerAsProvider } = useSocket()
+  const { isConnected: socketConnected, registerAsProvider } = useSocket()
 
   useEffect(() => {
     setMounted(true)
@@ -59,6 +61,11 @@ export function ProviderInterface() {
   }
 
   const handleRegister = async () => {
+    if (!walletConnected) {
+      alert('⚠️ Please connect your wallet first. Providers must use their wallet address to receive payments.')
+      return
+    }
+
     if (!username || username.trim().length < 3) {
       alert('Please enter a username (at least 3 characters)')
       return
@@ -78,8 +85,8 @@ export function ProviderInterface() {
         initializeUser(username, true)
       }
 
-      // Register with socket server
-      registerAsProvider(username)
+      // Register with socket server using wallet address as ID
+      registerAsProvider(address || username)
 
       setIsRegistered(true)
       
@@ -155,9 +162,18 @@ export function ProviderInterface() {
                     </AlertDescription>
                   </Alert>
 
+                  {!walletConnected && (
+                    <Alert className="border-yellow-500/50 bg-yellow-500/10">
+                      <AlertDescription className="text-yellow-200 text-sm flex items-center gap-2">
+                        <Wallet className="w-4 h-4" />
+                        <span>Connect your wallet to receive AVAX payments as a provider</span>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
                   <Button
                     onClick={handleRegister}
-                    disabled={!username || username.trim().length < 3 || registering}
+                    disabled={!walletConnected || !username || username.trim().length < 3 || registering}
                     className="w-full transition-all duration-200 hover:transform hover:scale-[1.02] disabled:hover:scale-100"
                     size="lg"
                   >
@@ -165,6 +181,11 @@ export function ProviderInterface() {
                       <span className="flex items-center gap-2">
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         Setting up...
+                      </span>
+                    ) : !walletConnected ? (
+                      <span className="flex items-center gap-2">
+                        <Wallet className="w-4 h-4" />
+                        Connect Wallet First
                       </span>
                     ) : (
                       "Start Providing Storage"
@@ -191,7 +212,7 @@ export function ProviderInterface() {
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-400">Status:</span>
                       <div className="flex items-center gap-2">
-                        {isConnected ? (
+                        {socketConnected ? (
                           <>
                             <Wifi className="w-4 h-4 text-green-400" />
                             <span className="text-green-400 font-medium">Online & Receiving</span>

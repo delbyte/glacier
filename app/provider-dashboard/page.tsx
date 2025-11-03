@@ -1,19 +1,34 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi"
 import { Button } from "@/components/ui/button"
 import { GlowCard } from "@/components/spotlight-card"
-import { ArrowLeft, FileText, Download, Wifi, WifiOff, DollarSign } from "lucide-react"
+import { ArrowLeft, FileText, Download, Wifi, WifiOff, DollarSign, Wallet } from "lucide-react"
 import Link from "next/link"
-import { getUserProfile, getReceivedFiles, getBalance, formatBalance, formatFileSize, type ReceivedFile } from "@/lib/user-manager"
+import { getUserProfile, getReceivedFiles, formatFileSize, type ReceivedFile } from "@/lib/user-manager"
 import { useSocket } from "@/hooks/useSocket"
+import { GLACIER_CONTRACT_ADDRESS, GLACIER_PAYMENTS_ABI, formatAVAX, formatGLCR } from "@/lib/glacier-contracts"
 
 export default function ProviderDashboard() {
+  const { address, isConnected: walletConnected } = useAccount()
   const [receivedFiles, setReceivedFiles] = useState<ReceivedFile[]>([])
-  const [balance, setBalance] = useState(0)
   const [username, setUsername] = useState<string>("")
   const [mounted, setMounted] = useState(false)
-  const { isConnected } = useSocket()
+  const [withdrawing, setWithdrawing] = useState(false)
+  const { isConnected: socketConnected } = useSocket()
+  
+  // Read provider earnings from contract
+  const { data: earnings, refetch: refetchEarnings } = useReadContract({
+    address: GLACIER_CONTRACT_ADDRESS,
+    abi: GLACIER_PAYMENTS_ABI,
+    functionName: 'getProviderEarnings',
+    args: address ? [address] : undefined,
+  })
+  
+  // Withdraw earnings
+  const { writeContract, data: hash, isPending } = useWriteContract()
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash })
 
   useEffect(() => {
     setMounted(true)
@@ -21,24 +36,52 @@ export default function ProviderDashboard() {
     const profile = getUserProfile()
     if (profile) {
       setUsername(profile.username)
-      setBalance(profile.balance)
     }
 
     // Load received files
     loadReceivedFiles()
 
-    // Refresh balance and files periodically
+    // Refresh files periodically
     const interval = setInterval(() => {
-      setBalance(getBalance())
       loadReceivedFiles()
-    }, 2000)
+      refetchEarnings()
+    }, 5000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [refetchEarnings])
+  
+  // Watch for successful withdrawal
+  useEffect(() => {
+    if (isConfirmed) {
+      setWithdrawing(false)
+      refetchEarnings()
+      alert('✅ Successfully withdrawn earnings!')
+    }
+  }, [isConfirmed, refetchEarnings])
 
   const loadReceivedFiles = () => {
     const files = getReceivedFiles()
     setReceivedFiles(files)
+  }
+  
+  const handleWithdraw = async () => {
+    if (!earnings || earnings === BigInt(0)) {
+      alert('No earnings to withdraw')
+      return
+    }
+    
+    setWithdrawing(true)
+    try {
+      writeContract({
+        address: GLACIER_CONTRACT_ADDRESS,
+        abi: GLACIER_PAYMENTS_ABI,
+        functionName: 'withdrawEarnings',
+      })
+    } catch (error) {
+      console.error('Withdraw error:', error)
+      setWithdrawing(false)
+      alert('Failed to withdraw. Please try again.')
+    }
   }
 
   const totalStorage = receivedFiles.reduce((sum, file) => sum + file.fileSize, 0)
@@ -70,7 +113,7 @@ export default function ProviderDashboard() {
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
             <div className="flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-lg">
-              {isConnected ? (
+              {socketConnected ? (
                 <>
                   <Wifi className="w-4 h-4 text-green-400" />
                   <span className="text-sm text-green-400">Online</span>
@@ -98,13 +141,30 @@ export default function ProviderDashboard() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <DollarSign className="w-5 h-5 text-green-400" />
-                  <h3 className="text-sm font-bold">GLCR Balance</h3>
+                  <h3 className="text-sm font-bold">Contract Earnings</h3>
                 </div>
                 <div className="text-3xl font-bold text-green-400">
-                  {formatBalance(balance)}
+                  {formatAVAX((earnings as bigint) || BigInt(0))}
                 </div>
+                <div className="text-sm text-gray-400">
+                  ≈ {formatGLCR((earnings as bigint) || BigInt(0))}
+                </div>
+                <Button 
+                  onClick={handleWithdraw}
+                  disabled={!earnings || earnings === BigInt(0) || withdrawing || isPending || isConfirming}
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-700 disabled:cursor-not-allowed"
+                >
+                  {isPending || isConfirming ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      {isConfirming ? 'Confirming...' : 'Withdrawing...'}
+                    </span>
+                  ) : (
+                    'Withdraw Earnings'
+                  )}
+                </Button>
                 <p className="text-xs text-gray-400">
-                  Earn GLCR by storing files for the network
+                  Earn AVAX by storing files for the network
                 </p>
               </div>
             </GlowCard>
@@ -124,7 +184,11 @@ export default function ProviderDashboard() {
                   </div>
                   <div className="flex justify-between text-sm border-t border-gray-700 pt-2">
                     <span>Total Earned:</span>
-                    <span className="font-medium text-green-400">{totalEarned.toFixed(4)} GLCR</span>
+                    <span className="font-medium text-green-400">{formatAVAX((earnings as bigint) || BigInt(0))}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-400">
+                    <span></span>
+                    <span>≈ {formatGLCR((earnings as bigint) || BigInt(0))}</span>
                   </div>
                 </div>
               </div>
@@ -142,7 +206,7 @@ export default function ProviderDashboard() {
                   <div>
                     <span className="text-gray-500">Status:</span>
                     <p className="text-white font-medium">
-                      {isConnected ? "Active & Receiving" : "Offline"}
+                      {socketConnected ? "Active & Receiving" : "Offline"}
                     </p>
                   </div>
                 </div>
