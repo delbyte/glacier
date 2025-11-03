@@ -1,18 +1,7 @@
 const { createServer } = require('http')
 const { Server } = require('socket.io')
 
-// Create HTTP server with a basic handler for health checks
-const httpServer = createServer((req, res) => {
-  // Only handle non-socket.io requests
-  if (req.url === '/health') {
-    res.writeHead(200, { 
-      'Content-Type': 'text/plain',
-      'Access-Control-Allow-Origin': '*'
-    })
-    res.end('Socket.io server is running')
-  }
-  // Let Socket.io handle everything else
-})
+const httpServer = createServer()
 
 // Store connected providers and users
 const providers = new Map() // socketId -> { username, socketId }
@@ -20,15 +9,12 @@ const users = new Map() // socketId -> { username, socketId, isProvider }
 
 const io = new Server(httpServer, {
   cors: {
-    origin: [
-      'http://localhost:3000',
-      'https://glacier-sigma.vercel.app'
-    ],
+    origin: '*', // Allow all origins for testing
     methods: ['GET', 'POST'],
-    credentials: true
+    credentials: false
   },
   maxHttpBufferSize: 100 * 1024 * 1024, // 100MB for file transfers
-  transports: ['polling', 'websocket'], // Prioritize polling for Railway
+  transports: ['polling', 'websocket'],
   allowUpgrades: true
 })
 

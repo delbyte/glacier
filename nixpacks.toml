@@ -1,8 +1,10 @@
+[phases.setup]
+nixPkgs = ["nodejs"]
+
 [phases.install]
-cmds = ["npm install socket.io"]
+cmds = ["cp socket-package.json package.json", "npm install"]
 
 [phases.build]
-cmds = []
 
 [start]
 cmd = "node socket-server.js"
