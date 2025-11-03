@@ -314,11 +314,6 @@ export function ProviderInterface() {
               </div>
             </GlowCard>
 
-            <Alert className="border-blue-500/50 bg-blue-500/10">
-              <AlertDescription className="text-blue-200 text-xs">
-                <strong>Demo Mode:</strong> This is a proof-of-concept showing real-time file distribution. In production, all data would be stored on-chain with cryptographic verification.
-              </AlertDescription>
-            </Alert>
           </div>
         </div>
       </div>

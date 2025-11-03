@@ -140,7 +140,5 @@ const PORT = process.env.PORT || 3001
 
 httpServer.listen(PORT, () => {
   console.log(`✅ Socket.io server running on port ${PORT}`)
-  console.log(`📡 CORS enabled for:`)
-  console.log(`   - http://localhost:3000`)
-  console.log(`   - https://glacier-sigma.vercel.app`)
+
 })
