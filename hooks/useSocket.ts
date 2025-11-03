@@ -25,8 +25,11 @@ export const useSocket = () => {
     console.log('🔌 Connecting to socket server:', socketUrl)
 
     const newSocket = io(socketUrl, {
-      transports: ['websocket', 'polling'],
+      transports: ['polling', 'websocket'], // Try polling first
       autoConnect: true,
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5,
     })
 
     socketRef.current = newSocket

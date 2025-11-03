@@ -1,7 +1,16 @@
 const { createServer } = require('http')
 const { Server } = require('socket.io')
 
-const httpServer = createServer()
+// Create HTTP server with a basic handler for health checks
+const httpServer = createServer((req, res) => {
+  if (req.url === '/health' || req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('Socket.io server is running')
+  } else {
+    res.writeHead(404)
+    res.end('Not found')
+  }
+})
 
 // Store connected providers and users
 const providers = new Map() // socketId -> { username, socketId }
@@ -13,9 +22,12 @@ const io = new Server(httpServer, {
       'http://localhost:3000',
       'https://glacier-sigma.vercel.app'
     ],
-    methods: ['GET', 'POST']
+    methods: ['GET', 'POST'],
+    credentials: true
   },
-  maxHttpBufferSize: 100 * 1024 * 1024 // 100MB for file transfers
+  maxHttpBufferSize: 100 * 1024 * 1024, // 100MB for file transfers
+  transports: ['polling', 'websocket'], // Prioritize polling for Railway
+  allowUpgrades: true
 })
 
 io.on('connection', (socket) => {
