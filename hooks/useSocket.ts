@@ -17,9 +17,12 @@ export const useSocket = () => {
 
   useEffect(() => {
     // Initialize socket connection
-    const socketUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://glacier-sigma.vercel.app'
-      : 'http://localhost:3001'
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 
+      (process.env.NODE_ENV === 'production' 
+        ? 'https://glacier-production-f766.up.railway.app'
+        : 'http://localhost:3001')
+
+    console.log('🔌 Connecting to socket server:', socketUrl)
 
     const newSocket = io(socketUrl, {
       transports: ['websocket', 'polling'],
