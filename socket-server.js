@@ -3,13 +3,15 @@ const { Server } = require('socket.io')
 
 // Create HTTP server with a basic handler for health checks
 const httpServer = createServer((req, res) => {
-  if (req.url === '/health' || req.url === '/') {
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
+  // Only handle non-socket.io requests
+  if (req.url === '/health') {
+    res.writeHead(200, { 
+      'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin': '*'
+    })
     res.end('Socket.io server is running')
-  } else {
-    res.writeHead(404)
-    res.end('Not found')
   }
+  // Let Socket.io handle everything else
 })
 
 // Store connected providers and users
