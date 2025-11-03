@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation"
 import { WalletConnection } from "@/components/wallet-connection"
 import { TokenClaim } from "@/components/token-claim"
 import { GlowCard } from "@/components/spotlight-card"
+import { SuccessToast } from "@/components/success-toast"
 import { useSocket } from "@/hooks/useSocket"
 import { 
   getUserProfile, 
@@ -725,7 +726,7 @@ export function UploadInterface() {
 
                 <Button
                   onClick={handleUpload}
-                  disabled={!file || !password || !isConnected || onlineProviders.length === 0 || uploading || uploadCostAVAX > (balanceData?.value || BigInt(0)) || !username}
+                  disabled={!file || !password || onlineProviders.length === 0 || uploading || !username}
                   className="w-full transition-all duration-200 hover:transform hover:scale-[1.02] disabled:hover:scale-100"
                   size="lg"
                 >
@@ -734,8 +735,6 @@ export function UploadInterface() {
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       {isContractPending || isConfirming ? 'Confirming transaction...' : 'Uploading...'}
                     </span>
-                  ) : !isConnected ? (
-                    "Connect Wallet First"
                   ) : !username ? (
                     "Register First"
                   ) : (
@@ -772,6 +771,14 @@ export function UploadInterface() {
           </div>
         </div>
       </div>
+
+      {/* Success Toast */}
+      <SuccessToast
+        show={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        title="Upload Complete!"
+        message={`File successfully uploaded to ${onlineProviders.length} provider${onlineProviders.length !== 1 ? 's' : ''}`}
+      />
     </div>
   )
 }
