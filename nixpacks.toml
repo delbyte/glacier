@@ -2,9 +2,7 @@
 nixPkgs = ["nodejs"]
 
 [phases.install]
-cmds = ["cp socket-package.json package.json", "npm install"]
-
-[phases.build]
+cmds = ["npm install --omit=dev"]
 
 [start]
 cmd = "node socket-server.js"
