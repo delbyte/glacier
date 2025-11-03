@@ -123,12 +123,14 @@ export const useSocket = () => {
 
     // Upload success
     newSocket.on('upload-success', (data: { recipientCount: number, recipients: string[] }) => {
-      console.log('Upload successful! Sent to', data.recipientCount, 'providers:', data.recipients)
+      console.log('✅ Upload successful! Sent to', data.recipientCount, 'providers:', data.recipients)
+      alert(`✅ File sent to ${data.recipientCount} provider(s)!`)
     })
 
     // Upload error
     newSocket.on('upload-error', (data: { message: string }) => {
-      console.error('Upload error:', data.message)
+      console.error('❌ Upload error:', data.message)
+      alert(`❌ Upload failed: ${data.message}`)
     })
 
     // Payment received notification

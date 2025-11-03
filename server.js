@@ -30,7 +30,8 @@ app.prepare().then(() => {
     cors: {
       origin: [
         'http://localhost:3000',
-        'https://glacier-sigma.vercel.app'
+        'https://glacier-sigma.vercel.app',
+        'https://glacier-production-f766.up.railway.app/'
       ],
       methods: ['GET', 'POST']
     },

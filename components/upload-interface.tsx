@@ -58,6 +58,7 @@ export function UploadInterface() {
   const [username, setUsername] = useState("")
   const [uploadCost, setUploadCost] = useState(0)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   const networks: NetworkType[] = [
     { id: 'basic', name: 'Basic Network', description: 'Standard reliability', uptime: 95, rateMultiplier: 1.0 },
@@ -67,6 +68,7 @@ export function UploadInterface() {
 
   // Load user profile and redirect if not registered
   useEffect(() => {
+    setMounted(true)
     const profile = getUserProfile()
     if (!profile) {
       // Not registered, redirect to registration
@@ -153,8 +155,14 @@ export function UploadInterface() {
       combined.set(iv, 0)
       combined.set(encryptedBytes, iv.length)
 
-      // Convert to base64
-      const encryptedBase64 = btoa(String.fromCharCode(...combined))
+      // Convert to base64 (chunk processing to avoid stack overflow)
+      let binary = ''
+      const chunkSize = 8192
+      for (let i = 0; i < combined.length; i += chunkSize) {
+        const chunk = combined.subarray(i, Math.min(i + chunkSize, combined.length))
+        binary += String.fromCharCode.apply(null, Array.from(chunk))
+      }
+      const encryptedBase64 = btoa(binary)
       
       // Return with data URL prefix
       const mimeType = fileData.split(';')[0].split(':')[1] || 'application/octet-stream'
@@ -288,6 +296,11 @@ export function UploadInterface() {
       setFile(droppedFile)
     }
   }, [])
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return null
+  }
 
   if (!isConnected) {
     return (

@@ -17,9 +17,11 @@ export function ProviderInterface() {
   const [isRegistered, setIsRegistered] = useState(false)
   const [registering, setRegistering] = useState(false)
   const [downloadPermission, setDownloadPermission] = useState<string>("default")
+  const [mounted, setMounted] = useState(false)
   const { isConnected, registerAsProvider } = useSocket()
 
   useEffect(() => {
+    setMounted(true)
     // Check if user is already registered as provider
     const profile = getUserProfile()
     if (profile && profile.isProvider) {
@@ -89,6 +91,11 @@ export function ProviderInterface() {
       console.error('Registration error:', error)
       setRegistering(false)
     }
+  }
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return null
   }
 
   return (

@@ -12,9 +12,11 @@ export default function ProviderDashboard() {
   const [receivedFiles, setReceivedFiles] = useState<ReceivedFile[]>([])
   const [balance, setBalance] = useState(0)
   const [username, setUsername] = useState<string>("")
+  const [mounted, setMounted] = useState(false)
   const { isConnected } = useSocket()
 
   useEffect(() => {
+    setMounted(true)
     // Load user profile
     const profile = getUserProfile()
     if (profile) {
@@ -45,6 +47,11 @@ export default function ProviderDashboard() {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return null
   }
 
   return (

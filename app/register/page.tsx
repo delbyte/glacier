@@ -16,10 +16,12 @@ export default function RegisterPage() {
   const [username, setUsername] = useState("")
   const [registering, setRegistering] = useState(false)
   const [userType, setUserType] = useState<'user' | 'provider'>('user')
+  const [mounted, setMounted] = useState(false)
   const { registerAsUser, registerAsProvider } = useSocket()
   const router = useRouter()
 
   useEffect(() => {
+    setMounted(true)
     // Check if already registered
     const profile = getUserProfile()
     if (profile) {
@@ -72,6 +74,11 @@ export default function RegisterPage() {
       alert('Registration failed. Please try again.')
       setRegistering(false)
     }
+  }
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return null
   }
 
   return (
