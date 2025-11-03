@@ -10,7 +10,8 @@
     "dev:analyze": "set ANALYZE=true && next dev --turbo",
     "build": "next build",
     "build:analyze": "set ANALYZE=true && next build",
-    "start": "next start",
+    "start": "node socket-server.js",
+    "start:next": "next start",
     "lint": "next lint",
     "speed": "set NODE_OPTIONS=--max-old-space-size=8192 && next dev --turbo"
   },
