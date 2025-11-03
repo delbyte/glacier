@@ -85,8 +85,8 @@ export function ProviderInterface() {
         initializeUser(username, true)
       }
 
-      // Register with socket server using wallet address as ID
-      registerAsProvider(address || username)
+      // Register with socket server, pass wallet address for payments
+      registerAsProvider(username, address)
 
       setIsRegistered(true)
       

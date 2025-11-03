@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useAccount } from "wagmi"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, User, Upload, HardDrive } from "lucide-react"
+import { ArrowLeft, User, Upload, HardDrive, Wallet } from "lucide-react"
 import Link from "next/link"
 import { GlowCard } from "@/components/spotlight-card"
 import { getUserProfile, initializeUser } from "@/lib/user-manager"
@@ -13,6 +14,7 @@ import { useSocket } from "@/hooks/useSocket"
 import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
+  const { address, isConnected: walletConnected } = useAccount()
   const [username, setUsername] = useState("")
   const [registering, setRegistering] = useState(false)
   const [userType, setUserType] = useState<'user' | 'provider'>('user')
@@ -35,6 +37,11 @@ export default function RegisterPage() {
   }, [router])
 
   const handleRegister = async () => {
+    if (!walletConnected) {
+      alert('⚠️ Please connect your wallet first to use Glacier.')
+      return
+    }
+
     if (!username || username.trim().length < 3) {
       alert('Please enter a username (at least 3 characters)')
       return
@@ -50,7 +57,7 @@ export default function RegisterPage() {
 
       // Register with socket server
       if (isProvider) {
-        registerAsProvider(username)
+        registerAsProvider(username, address)
         
         // Request notification permission for providers
         if ('Notification' in window && Notification.permission === 'default') {
@@ -166,14 +173,23 @@ export default function RegisterPage() {
               {userType === 'provider' && (
                 <Alert className="border-blue-500/50 bg-blue-500/10">
                   <AlertDescription className="text-blue-200 text-sm">
-                    As a provider, you'll automatically receive files when users upload to the network. Keep your browser open to earn GLCR!
+                    As a provider, you'll automatically receive files when users upload to the network. Keep your browser open to earn AVAX!
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {!walletConnected && (
+                <Alert className="border-yellow-500/50 bg-yellow-500/10">
+                  <AlertDescription className="text-yellow-200 text-sm flex items-center gap-2">
+                    <Wallet className="w-4 h-4" />
+                    <span>Connect your wallet to register (top right corner)</span>
                   </AlertDescription>
                 </Alert>
               )}
 
               <Button
                 onClick={handleRegister}
-                disabled={!username || username.trim().length < 3 || registering}
+                disabled={!walletConnected || !username || username.trim().length < 3 || registering}
                 className="w-full transition-all duration-200 hover:transform hover:scale-[1.02] disabled:hover:scale-100"
                 size="lg"
               >
@@ -181,6 +197,11 @@ export default function RegisterPage() {
                   <span className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     Setting up your account...
+                  </span>
+                ) : !walletConnected ? (
+                  <span className="flex items-center gap-2">
+                    <Wallet className="w-4 h-4" />
+                    Connect Wallet First
                   </span>
                 ) : (
                   `Create Account & Start ${userType === 'provider' ? 'Earning' : 'Uploading'}`

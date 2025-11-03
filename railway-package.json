@@ -1,11 +1,11 @@
 {
   "name": "glacier-socket-server",
   "version": "1.0.0",
-  "description": "Socket.io server for Glacier decentralized storage",
-  "main": "socket-server.js",
+  "description": "Socket.io server for Glacier file distribution",
+  "main": "socket-server.cjs",
   "scripts": {
-    "start": "node socket-server.js",
-    "dev": "node socket-server.js"
+    "start": "node socket-server.cjs",
+    "dev": "node socket-server.cjs"
   },
   "dependencies": {
     "socket.io": "^4.8.1"
@@ -13,4 +13,6 @@
   "engines": {
     "node": ">=18.0.0"
   }
+  
 }
+ 

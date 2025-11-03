@@ -1,9 +1,9 @@
 {
   "name": "glacier-socket-server",
   "version": "1.0.0",
-  "main": "socket-server.js",
+  "main": "socket-server.cjs",
   "scripts": {
-    "start": "node socket-server.js"
+    "start": "node socket-server.cjs"
   },
   "dependencies": {
     "socket.io": "^4.8.1"

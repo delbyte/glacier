@@ -41,15 +41,22 @@ io.on('connection', (socket) => {
 
   // Register as provider
   socket.on('register-provider', (data) => {
-    const { username } = data
-    providers.set(socket.id, { username, socketId: socket.id })
-    users.set(socket.id, { username, socketId: socket.id, isProvider: true })
+    const { username, walletAddress } = data
+    // Use wallet address as ID if provided, otherwise use socket ID
+    const providerId = walletAddress || socket.id
+    providers.set(socket.id, { username, socketId: socket.id, walletAddress: providerId })
+    users.set(socket.id, { username, socketId: socket.id, isProvider: true, walletAddress: providerId })
     
-    console.log(`Provider registered: ${username} (${socket.id})`)
+    console.log(`Provider registered: ${username} (${socket.id}) - Wallet: ${providerId}`)
     
     // Notify all clients about updated provider list
+    // Use walletAddress as the ID so smart contract can use it
     io.emit('provider-list-update', {
-      providers: Array.from(providers.values()).map(p => ({ username: p.username, id: p.socketId }))
+      providers: Array.from(providers.values()).map(p => ({ 
+        username: p.username, 
+        id: p.walletAddress || p.socketId,
+        socketId: p.socketId
+      }))
     })
   })
 

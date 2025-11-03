@@ -145,9 +145,9 @@ export const useSocket = () => {
   }, [])
 
   // Register as provider
-  const registerAsProvider = (username: string) => {
+  const registerAsProvider = (username: string, walletAddress?: string) => {
     if (socketRef.current?.connected) {
-      socketRef.current.emit('register-provider', { username })
+      socketRef.current.emit('register-provider', { username, walletAddress })
     }
   }
 
