@@ -1,7 +1,22 @@
 const { createServer } = require('http')
 const { Server } = require('socket.io')
 
-const httpServer = createServer()
+const httpServer = createServer((req, res) => {
+  // Add CORS headers to all HTTP requests
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Credentials', 'false')
+  
+  if (req.method === 'OPTIONS') {
+    res.writeHead(200)
+    res.end()
+    return
+  }
+  
+  res.writeHead(200)
+  res.end('Socket.io server running')
+})
 
 // Store connected providers and users
 const providers = new Map() // socketId -> { username, socketId }
@@ -9,13 +24,16 @@ const users = new Map() // socketId -> { username, socketId, isProvider }
 
 const io = new Server(httpServer, {
   cors: {
-    origin: '*', // Allow all origins for testing
-    methods: ['GET', 'POST'],
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type'],
     credentials: false
   },
   maxHttpBufferSize: 100 * 1024 * 1024, // 100MB for file transfers
   transports: ['polling', 'websocket'],
-  allowUpgrades: true
+  allowUpgrades: true,
+  pingTimeout: 60000,
+  pingInterval: 25000
 })
 
 io.on('connection', (socket) => {
