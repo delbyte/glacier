@@ -5,4 +5,4 @@ nixPkgs = ["nodejs"]
 cmds = ["npm install --omit=dev"]
 
 [start]
-cmd = "node socket-server.js"
+cmd = "node socket-server.cjs"
