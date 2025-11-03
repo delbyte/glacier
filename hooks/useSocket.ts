@@ -128,7 +128,6 @@ export const useSocket = () => {
     // Upload success
     newSocket.on('upload-success', (data: { recipientCount: number, recipients: string[] }) => {
       console.log('✅ Upload successful! Sent to', data.recipientCount, 'providers:', data.recipients)
-      alert(`✅ File sent to ${data.recipientCount} provider(s)!`)
     })
 
     // Upload error
