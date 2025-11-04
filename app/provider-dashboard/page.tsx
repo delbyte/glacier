@@ -55,7 +55,6 @@ export default function ProviderDashboard() {
     if (isConfirmed) {
       setWithdrawing(false)
       refetchEarnings()
-      alert('✅ Successfully withdrawn earnings!')
     }
   }, [isConfirmed, refetchEarnings])
 
