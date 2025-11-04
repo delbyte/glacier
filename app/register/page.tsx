@@ -37,14 +37,14 @@ export default function RegisterPage() {
   }, [router])
 
   const handleRegister = async () => {
-    if (!walletConnected) {
-      alert('⚠️ Please connect your wallet first to use Glacier.')
-      return
-    }
-
     if (!username || username.trim().length < 3) {
       alert('Please enter a username (at least 3 characters)')
       return
+    }
+
+    // Warn if no wallet but allow registration anyway for demo
+    if (!walletConnected) {
+      console.warn('⚠️ User registering without wallet - payments will be skipped')
     }
 
     setRegistering(true)
@@ -185,14 +185,14 @@ export default function RegisterPage() {
                 <Alert className="border-yellow-500/50 bg-yellow-500/10">
                   <AlertDescription className="text-yellow-200 text-sm flex items-center gap-2">
                     <Wallet className="w-4 h-4" />
-                    <span>Connect your wallet to register (top right corner)</span>
+                    <span>Optional: Connect wallet for AVAX payments (demo works without wallet)</span>
                   </AlertDescription>
                 </Alert>
               )}
 
               <Button
                 onClick={handleRegister}
-                disabled={!walletConnected || !username || username.trim().length < 3 || registering}
+                disabled={!username || username.trim().length < 3 || registering}
                 className="w-full transition-all duration-200 hover:transform hover:scale-[1.02] disabled:hover:scale-100"
                 size="lg"
               >
@@ -200,11 +200,6 @@ export default function RegisterPage() {
                   <span className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     Setting up your account...
-                  </span>
-                ) : !walletConnected ? (
-                  <span className="flex items-center gap-2">
-                    <Wallet className="w-4 h-4" />
-                    Connect Wallet First
                   </span>
                 ) : (
                   `Create Account & Start ${userType === 'provider' ? 'Earning' : 'Uploading'}`
