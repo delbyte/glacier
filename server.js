@@ -43,15 +43,49 @@ app.prepare().then(() => {
 
     // Register as provider
     socket.on('register-provider', (data) => {
-      const { username } = data
-      providers.set(socket.id, { username, socketId: socket.id })
-      users.set(socket.id, { username, socketId: socket.id, isProvider: true })
+      const { username, walletAddress } = data
       
-      console.log(`Provider registered: ${username} (${socket.id})`)
+      console.log(`📝 Provider registration attempt:`)
+      console.log(`  - Username: ${username}`)
+      console.log(`  - Socket ID: ${socket.id}`)
+      console.log(`  - Wallet Address: ${walletAddress || 'NOT PROVIDED'}`)
+      
+      const providerData = { 
+        username, 
+        socketId: socket.id, 
+        walletAddress: walletAddress || null 
+      }
+      
+      providers.set(socket.id, providerData)
+      users.set(socket.id, { 
+        username, 
+        socketId: socket.id, 
+        isProvider: true, 
+        walletAddress: walletAddress || null 
+      })
+      
+      console.log(`✅ Provider registered: ${username} (${socket.id})`)
+      if (walletAddress) {
+        console.log(`   💳 With wallet: ${walletAddress}`)
+      } else {
+        console.log(`   ⚠️  No wallet address provided - payments will be skipped!`)
+      }
       
       // Notify all clients about updated provider list
+      const providerList = Array.from(providers.values()).map(p => ({ 
+        username: p.username, 
+        id: p.walletAddress || p.socketId,
+        socketId: p.socketId,
+        hasWallet: !!p.walletAddress
+      }))
+      
+      console.log(`📤 Broadcasting provider list (count: ${providerList.length}):`)
+      providerList.forEach(p => {
+        console.log(`   - ${p.username}: ${p.hasWallet ? `wallet ${p.id}` : `socketId ${p.id} (no wallet)`}`)
+      })
+      
       io.emit('provider-list-update', {
-        providers: Array.from(providers.values()).map(p => ({ username: p.username, id: p.socketId }))
+        providers: providerList
       })
     })
 
@@ -125,8 +159,17 @@ app.prepare().then(() => {
 
     // Get current provider list
     socket.on('get-providers', () => {
+      const providerList = Array.from(providers.values()).map(p => ({ 
+        username: p.username, 
+        id: p.walletAddress || p.socketId,
+        socketId: p.socketId,
+        hasWallet: !!p.walletAddress
+      }))
+      
+      console.log(`📋 Client ${socket.id} requested provider list (count: ${providerList.length})`)
+      
       socket.emit('provider-list-update', {
-        providers: Array.from(providers.values()).map(p => ({ username: p.username, id: p.socketId }))
+        providers: providerList
       })
     })
 
@@ -143,7 +186,12 @@ app.prepare().then(() => {
 
       // Notify all clients about updated provider list
       io.emit('provider-list-update', {
-        providers: Array.from(providers.values()).map(p => ({ username: p.username, id: p.socketId }))
+        providers: Array.from(providers.values()).map(p => ({ 
+          username: p.username, 
+          id: p.walletAddress || p.socketId,
+          socketId: p.socketId,
+          hasWallet: !!p.walletAddress
+        }))
       })
     })
   })
