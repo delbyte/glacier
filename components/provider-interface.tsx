@@ -61,14 +61,14 @@ export function ProviderInterface() {
   }
 
   const handleRegister = async () => {
-    if (!walletConnected) {
-      alert('⚠️ Please connect your wallet first. Providers must use their wallet address to receive payments.')
-      return
-    }
-
     if (!username || username.trim().length < 3) {
       alert('Please enter a username (at least 3 characters)')
       return
+    }
+
+    // Warn if no wallet but allow registration anyway for demo
+    if (!walletConnected) {
+      console.warn('⚠️ Provider registering without wallet - payments will be skipped')
     }
 
     setRegistering(true)
@@ -173,14 +173,14 @@ export function ProviderInterface() {
                     <Alert className="border-yellow-500/50 bg-yellow-500/10">
                       <AlertDescription className="text-yellow-200 text-sm flex items-center gap-2">
                         <Wallet className="w-4 h-4" />
-                        <span>Connect your wallet to receive AVAX payments as a provider</span>
+                        <span>Optional: Connect wallet to receive AVAX payments (demo works without wallet)</span>
                       </AlertDescription>
                     </Alert>
                   )}
 
                   <Button
                     onClick={handleRegister}
-                    disabled={!walletConnected || !username || username.trim().length < 3 || registering}
+                    disabled={!username || username.trim().length < 3 || registering}
                     className="w-full transition-all duration-200 hover:transform hover:scale-[1.02] disabled:hover:scale-100"
                     size="lg"
                   >
@@ -188,11 +188,6 @@ export function ProviderInterface() {
                       <span className="flex items-center gap-2">
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         Setting up...
-                      </span>
-                    ) : !walletConnected ? (
-                      <span className="flex items-center gap-2">
-                        <Wallet className="w-4 h-4" />
-                        Connect Wallet First
                       </span>
                     ) : (
                       "Start Providing Storage"
