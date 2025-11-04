@@ -325,7 +325,7 @@ export function UploadInterface() {
     } catch (error) {
       console.error('Upload failed:', error)
       setUploading(false)
-      alert('Upload failed. Please try again.')
+      // Error handled - no alert needed, user sees uploading state change
     }
   }
 
